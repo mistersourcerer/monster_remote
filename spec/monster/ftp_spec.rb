@@ -45,6 +45,11 @@ module Monster
         ftp.send_directory(".")
       end
 
+      it "login into ftp connection" do
+        connection.should_receive(:login).with(@user, @pass)
+        ftp.send_directory(".")
+      end
+
     end
 
   end
