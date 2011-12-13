@@ -9,13 +9,35 @@ module Monster
       end
 
       def open(host, port = 21, user = nil, pass = nil)
-        @ftp_impl.open(host) do |ftp|
-          ftp.connect(host, port)
-          ftp.login(user, pass)
-          if block_given?
+        if block_given?
+          @ftp_impl.open(host) do |ftp|
+            @connection = ftp
+            ftp.connect(host, port)
+            ftp.login(user, pass)
             yield(self, ftp)
           end
+        else
+          ftp = @ftp_impl.new(host)
+          ftp.connect(host, port)
+          ftp.login(user, pass)
         end
+        @connection
+      end
+
+      def remote_files
+        
+      end
+
+      def copy_file(from, to)
+        
+      end
+
+      def mkdir(remote_dir_name)
+        
+      end
+
+      def close
+        @connection.close
       end
 
     end
