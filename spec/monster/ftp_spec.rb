@@ -3,6 +3,7 @@ module Monster
 
     before(:all) do
       @host, @port, @user, @pass = "localhost", "21", "user", "pass"
+      @remote_dir_list ||= []
     end
 
     let(:server) do
@@ -11,12 +12,13 @@ module Monster
 
     let(:connection) do
       connection = double("Ftp Connection Mock").as_null_object
-      connection.stub(:nlst).and_return([
+      @remote_dir_list = [
         ".CFUserTextEncoding",
         ".DS_Store",
         "Applications",
         "Backup"
-      ]);
+      ]
+      connection.stub(:nlst).and_return(@remote_dir_list);
       connection
     end
 
@@ -32,7 +34,6 @@ module Monster
       end
 
       AbstractionMock.connection = connection
-
       AbstractionMock
     end
 
@@ -87,13 +88,32 @@ module Monster
               connection.should_receive(:mkdir).with(dir)
             end
           end
+        end
 
-          it "list all remote dirs just once" do
-            send_directory_within_dir_structure do
-              connection.should_receive(:nlst).once
+        context "remote dir already exists" do
+
+          it "create remote dir" do
+            @original_remote_dir_list = connection.nlst
+            send_directory_within_dir_structure do |dir, remote|
+              connection.stub(:nlst).and_return([
+                ".CFUserTextEncoding",
+                ".DS_Store",
+                "Applications",
+                "Backup",
+                remote
+              ]);
+
+              connection.should_not_receive(:mkdir).with(remote)
             end
-          end
 
+            connection.stub(:nlst).and_return(@original_remote_dir_list)
+          end
+        end
+
+        it "list all remote dirs just once" do
+          send_directory_within_dir_structure do
+            connection.should_receive(:nlst).once
+          end
         end
 
         it "copy an entire dir structure" do
