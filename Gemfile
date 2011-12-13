@@ -1,5 +1,6 @@
 source :rubygems
 
-group :dev, :test do
+group :test do
   gem "rspec"
+  gem "fakefs"
 end
