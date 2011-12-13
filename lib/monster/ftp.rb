@@ -19,7 +19,7 @@ module Monster
 
     private
     def connect
-      @ftp.open(@host) do |ftp|
+      @ftp.open(@host, @port, @user, @pass) do |ftp|
         ftp.connect(@host, @port)
         ftp.login(@user, @password)
         yield(ftp)

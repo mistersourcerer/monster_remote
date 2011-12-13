@@ -61,7 +61,7 @@ module Monster
       describe "ftp connection" do
 
         it "connect on server" do
-          ftpabs.should_receive(:open).with(@host) {}
+          ftpabs.should_receive(:open).with(@host, @port, @user, @pass) {}
           send_directory_within_dir_structure
         end
 
