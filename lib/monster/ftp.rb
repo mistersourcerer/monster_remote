@@ -1,10 +1,10 @@
-require 'net/ftp'
+require 'monster/net_ftp_wrapper.rb'
 
 module Monster
   class FTP
 
-    def initialize(host, port = 21, user = nil, password = nil, abstraction = Net::FTP)
-      @ftp = abstraction
+    def initialize(host, port = 21, user = nil, password = nil, abstraction = nil)
+      @ftp = abstraction || FTPWrapper::NetFTPWrapper.new
       @host, @port, @user, @pass = host, port, user, password
     end
 
