@@ -64,17 +64,6 @@ module Monster
           ftpabs.should_receive(:open).with(@host, @port, @user, @pass) {}
           send_directory_within_dir_structure
         end
-
-        it "create ftp connection" do
-          connection.should_receive(:connect).with(@host, @port)
-          send_directory_within_dir_structure
-        end
-
-        it "login into ftp connection" do
-          connection.should_receive(:login).with(@user, @pass)
-          send_directory_within_dir_structure
-        end
-
       end
 
       describe "sending directory content" do

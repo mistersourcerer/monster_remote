@@ -5,7 +5,7 @@ module Monster
 
     def initialize(host, port = 21, user = nil, password = nil, abstraction = Net::FTP)
       @ftp = abstraction
-      @host, @port, @user, @password = host, port, user, password
+      @host, @port, @user, @pass = host, port, user, password
     end
 
     def send_directory(dir, to = nil)
@@ -20,8 +20,6 @@ module Monster
     private
     def connect
       @ftp.open(@host, @port, @user, @pass) do |ftp|
-        ftp.connect(@host, @port)
-        ftp.login(@user, @password)
         yield(ftp)
       end
     end
