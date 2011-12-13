@@ -1,5 +1,4 @@
 require 'net/ftp'
-
 module Monster
   module FTPWrapper
     class NetFTPWrapper
@@ -12,14 +11,12 @@ module Monster
         if block_given?
           @ftp_impl.open(host) do |ftp|
             @connection = ftp
-            ftp.connect(host, port)
-            ftp.login(user, pass)
+            connection_login(host, port, user, pass)
             yield(self, ftp)
           end
         else
-          ftp = @ftp_impl.new(host)
-          ftp.connect(host, port)
-          ftp.login(user, pass)
+          @connection = @ftp_impl.new(host)
+          connection_login(host, port, user, pass)
         end
         @connection
       end
@@ -38,6 +35,12 @@ module Monster
 
       def close
         @connection.close
+      end
+
+      private
+      def connection_login(host, port, user, pass)
+        @connection.connect(host, port)
+        @connection.login(user, pass)
       end
 
     end
