@@ -26,7 +26,7 @@ module Monster
 
     def prepare_remote_dir(ftp, remote_dir = nil)
       remote_dir ||= @remote_dir
-      @remote_files ||= ftp.nlst
+      @remote_files ||= ftp.remote_files
       if !@remote_files.include?(remote_dir)
         ftp.mkdir(remote_dir)
         @remote_files << remote_dir

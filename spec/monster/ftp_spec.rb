@@ -21,7 +21,7 @@ module Monster
 
     let(:connection) do
       connection = double("Ftp Connection Mock").as_null_object
-      connection.stub(:nlst).and_return(remote_dir_list);
+      connection.stub(:remote_files).and_return(remote_dir_list);
       connection
     end
 
@@ -71,7 +71,7 @@ module Monster
         context "remote dir doesn't exists" do
 
           it "verify remote dir existence" do
-            connection.should_receive(:nlst)
+            connection.should_receive(:remote_files)
             send_directory_within_dir_structure
           end
 
@@ -96,7 +96,7 @@ module Monster
 
         it "list all remote dirs just once" do
           send_directory_within_dir_structure do
-            connection.should_receive(:nlst).once
+            connection.should_receive(:remote_files).once
           end
         end
 
