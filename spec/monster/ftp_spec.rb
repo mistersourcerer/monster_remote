@@ -102,9 +102,9 @@ module Monster
 
         it "copy an entire dir structure" do
           send_directory_within_dir_structure do |dir, remote|
-            connection.should_receive(:putbinaryfile).with("#{dir}/README", "#{remote}/README").and_return(true)
+            connection.should_receive(:copy_file).with("#{dir}/README", "#{remote}/README").and_return(true)
             connection.should_receive(:mkdir).with("#{dir}/subdir")
-            connection.should_receive(:putbinaryfile).with("#{dir}/subdir/README", "#{remote}/subdir/README").and_return(true)
+            connection.should_receive(:copy_file).with("#{dir}/subdir/README", "#{remote}/subdir/README").and_return(true)
           end
         end
 

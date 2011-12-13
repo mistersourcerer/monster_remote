@@ -41,7 +41,7 @@ module Monster
 
     def copy_file(file, remote_dir, ftp)
       to = remote_dir
-      ftp.putbinaryfile(file, to)
+      ftp.copy_file(file, to)
     end
 
     def copy_directory(from, to, ftp)
