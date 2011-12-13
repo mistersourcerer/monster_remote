@@ -40,12 +40,15 @@ module Monster
       FTP.new(@host, @port, @user, @pass, ftpabs)
     end
 
-    def within_dir_structure(dir="/teste", remote = "/teste", &block)
+    def send_directory_within_dir_structure(dir="/teste", remote = "/teste", &block)
       FakeFS do
         FileUtils.mkdir_p("#{dir}/subdir")
         File.open("#{dir}/README", 'w') { |f| f.write 'N/A' }
         File.open("#{dir}/subdir/README", 'w') { |f| f.write 'N/A' }
-        block.call(dir, remote)
+        if block_given?
+          block.call(dir, remote)
+        end
+        ftp.send_directory(dir)
       end
     end
 
@@ -55,23 +58,17 @@ module Monster
 
         it "connect on server" do
           ftpabs.should_receive(:open).with(@host) {}
-          within_dir_structure do |dir, remote|
-            ftp.send_directory(dir)
-          end
+          send_directory_within_dir_structure
         end
 
         it "create ftp connection" do
           connection.should_receive(:connect).with(@host, @port)
-          within_dir_structure do |dir, remote|
-            ftp.send_directory(dir)
-          end
+          send_directory_within_dir_structure
         end
 
         it "login into ftp connection" do
           connection.should_receive(:login).with(@user, @pass)
-          within_dir_structure do |dir, remote|
-            ftp.send_directory(dir)
-          end
+          send_directory_within_dir_structure
         end
 
       end
@@ -82,26 +79,28 @@ module Monster
 
           it "verify remote dir existence" do
             connection.should_receive(:nlst)
-            within_dir_structure do |dir, remote|
-              ftp.send_directory(dir)
-            end
+            send_directory_within_dir_structure
           end
 
           it "create remote dir" do
-            within_dir_structure do |dir, remote|
+            send_directory_within_dir_structure do |dir|
               connection.should_receive(:mkdir).with(dir)
-              ftp.send_directory(dir)
+            end
+          end
+
+          it "list all remote dirs just once" do
+            send_directory_within_dir_structure do
+              connection.should_receive(:nlst).once
             end
           end
 
         end
 
         it "copy an entire dir structure" do
-          within_dir_structure do |dir, remote|
+          send_directory_within_dir_structure do |dir, remote|
             connection.should_receive(:putbinaryfile).with("#{dir}/README", "#{remote}/README").and_return(true)
             connection.should_receive(:mkdir).with("#{dir}/subdir")
             connection.should_receive(:putbinaryfile).with("#{dir}/subdir/README", "#{remote}/subdir/README").and_return(true)
-            ftp.send_directory(dir)
           end
         end
 
