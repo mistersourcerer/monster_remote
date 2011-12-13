@@ -1,9 +1,18 @@
 module Monster
   describe FTP do
 
+    def remote_dir_list
+      @remote_dir_list ||= [
+        ".CFUserTextEncoding",
+        ".DS_Store",
+        "Applications",
+        "Backup"
+      ]
+      @remote_dir_list
+    end
+
     before(:all) do
       @host, @port, @user, @pass = "localhost", "21", "user", "pass"
-      @remote_dir_list ||= []
     end
 
     let(:server) do
@@ -12,13 +21,7 @@ module Monster
 
     let(:connection) do
       connection = double("Ftp Connection Mock").as_null_object
-      @remote_dir_list = [
-        ".CFUserTextEncoding",
-        ".DS_Store",
-        "Applications",
-        "Backup"
-      ]
-      connection.stub(:nlst).and_return(@remote_dir_list);
+      connection.stub(:nlst).and_return(remote_dir_list);
       connection
     end
 
@@ -93,20 +96,12 @@ module Monster
         context "remote dir already exists" do
 
           it "create remote dir" do
-            @original_remote_dir_list = connection.nlst
+            @original_remote_dir_list = remote_dir_list.dup
             send_directory_within_dir_structure do |dir, remote|
-              connection.stub(:nlst).and_return([
-                ".CFUserTextEncoding",
-                ".DS_Store",
-                "Applications",
-                "Backup",
-                remote
-              ]);
-
+              @remote_dir_list << remote
               connection.should_not_receive(:mkdir).with(remote)
             end
-
-            connection.stub(:nlst).and_return(@original_remote_dir_list)
+            @remote_dir_list = @original_remote_dir_list
           end
         end
 
