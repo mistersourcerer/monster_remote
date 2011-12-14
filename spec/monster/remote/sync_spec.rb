@@ -36,8 +36,19 @@ module Monster
       def user; "mr. cueca"; end
       def pass; "big secret of mine"; end
 
+      def provider
+        provider = double("provider interface mock").as_null_object
+        provider.stub(:open) do
+          yield(double("internal connection mock").as_null_object)
+        end
+        provider
+      end
+
       before(:all) do
         mount_local_file_system
+      end
+
+      before do
         mount_remote_file_system
 
         @sync = Sync.with.
@@ -48,10 +59,6 @@ module Monster
           port(port).
           user(user).
           pass(pass)
-      end
-
-      before(:each) do
-        mount_remote_file_system
       end
 
       it "open a connection" do
