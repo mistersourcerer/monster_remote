@@ -10,7 +10,9 @@ module Monster
       end
 
       def start
-        
+        @provider.open(@host, @port, @user, @pass) do |con|
+          con.copy_dir(@local_dir, @remote_dir)
+        end
       end
 
       def local_dir(local_dir)
@@ -19,7 +21,7 @@ module Monster
       end
 
       def remote_dir(remote_dir)
-        @local_dir = remote_dir
+        @remote_dir = remote_dir
         self
       end
 

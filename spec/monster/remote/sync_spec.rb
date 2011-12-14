@@ -3,54 +3,27 @@ module Monster
 
     describe Sync do
 
-      def static_site_dir
-        "/omg/what/a/nice/dir"
-      end
-
-      def remote_site_dir
-        "/my/remote/dir"
-      end
-
-      def mount_local_file_system
-        
-      end
-
-      def local_dir_structure
-        ["local"]
-      end
-
-      def mount_remote_file_system
-        
-      end
-
-      def remote_dir_structure
-        ["remote"]
-      end
-
-      def provider
-        
-      end
-
+      def static_site_dir; "/omg/what/a/nice/dir"; end
+      def remote_site_dir; "/my/remote/dir"; end
       def host; "localhost"; end
       def port; 211231; end
       def user; "mr. cueca"; end
       def pass; "big secret of mine"; end
 
-      def provider
-        provider = double("provider interface mock").as_null_object
-        provider.stub(:open) do
-          yield(double("internal connection mock").as_null_object)
-        end
-        provider
+      let(:connection) do
+        double("internal connection mock").as_null_object
       end
 
-      before(:all) do
-        mount_local_file_system
+      let(:provider) do
+        class RemoteProtocolProviderMock
+          class << self; attr_accessor :connection; end
+          def open(*args); yield(RemoteProtocolProviderMock.connection); end
+        end
+        RemoteProtocolProviderMock.connection = connection
+        RemoteProtocolProviderMock.new
       end
 
       before do
-        mount_remote_file_system
-
         @sync = Sync.with.
           local_dir(static_site_dir).
           remote_dir(remote_site_dir).
@@ -61,20 +34,22 @@ module Monster
           pass(pass)
       end
 
-      it "open a connection" do
-        provider.should_receive(:open).once
-        @sync.start
-      end
+      context "sending static site" do
 
-      it "create the remote dir, if it doesn't exists" do
-        remote_dir_structure.include?(remote_site_dir).should be_false
-        @sync.start
-        remote_dir_structure.include?(remote_site_dir).should be_true
-      end
+        it "open a connection" do
+          provider.should_receive(:open).with(host, port, user, pass).once
+          @sync.start
+        end
 
-      it "copy some local dir, to the remote dir" do
-        @sync.start
-        remote_dir_structure.should == local_dir_structure
+        it "use a connection to send the local dir" do
+          connection.should_receive(:copy_dir).with(static_site_dir, remote_site_dir).once
+          @sync.start
+        end
+
+      end # sending static site
+
+      context "building static site" do
+
       end
 
     end #describe Sync

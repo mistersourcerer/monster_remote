@@ -1,4 +1,24 @@
 require 'net/ftp'
+
+module Monster
+  module Remote
+    module Wrappers
+
+      class NetFTP
+
+        def open(host, port, user, pass)
+          
+        end
+
+        def copy_dir(local_dir, remote_dir)
+          
+        end
+      end
+
+    end
+  end
+end
+
 module Monster
   module FTPWrapper
     class NetFTPWrapper

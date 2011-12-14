@@ -1,7 +1,7 @@
 module Monster
   module FTPWrapper
 
-    describe NetFTPWrapper do
+    describe "NetFTPWrapper" do
       before(:all) do
         @host, @port, @user, @pass = "localhost", 28273, "user", "pass"
       end
