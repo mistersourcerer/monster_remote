@@ -5,6 +5,52 @@ module Monster
 
     class Sync
 
+      def self.with
+        Sync.new
+      end
+
+      def start
+        
+      end
+
+      def local_dir(local_dir)
+        @local_dir = local_dir
+        self
+      end
+
+      def remote_dir(remote_dir)
+        @local_dir = remote_dir
+        self
+      end
+
+      def remote_connection_provider(provider)
+        @provider = provider
+        self
+      end
+
+      def host(host)
+        @host = host
+        self
+      end
+
+      def port(port)
+        @port = port
+        self
+      end
+
+      def user(user)
+        @user = user
+        self
+      end
+
+      def pass(pass)
+        @pass = pass
+        self
+      end
+    end
+
+    class SyncOld
+
       def initialize(host, port = 21, user = nil, password = nil, abstraction = nil)
         @ftp = abstraction || FTPWrapper::NetFTPWrapper.new
         @host, @port, @user, @pass = host, port, user, password

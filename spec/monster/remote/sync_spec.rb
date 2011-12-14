@@ -3,7 +3,43 @@ module Monster
 
     describe Sync do
 
+      def static_site_dir
+        "/omg/what/a/nice/dir"
+      end
+
+      def remote_site_dir
+        "/my/remote/dir"
+      end
+
+      def mount_local_file_system
+        
+      end
+
+      def local_dir_structure
+        ["local"]
+      end
+
+      def mount_remote_file_system
+        
+      end
+
+      def remote_dir_structure
+        ["remote"]
+      end
+
+      def provider
+        
+      end
+
+      def host; "localhost"; end
+      def port; 211231; end
+      def user; "mr. cueca"; end
+      def pass; "big secret of mine"; end
+
       before(:all) do
+        mount_local_file_system
+        mount_remote_file_system
+
         @sync = Sync.with.
           local_dir(static_site_dir).
           remote_dir(remote_site_dir).
@@ -15,7 +51,7 @@ module Monster
       end
 
       before(:each) do
-        clean_remote_file_system
+        mount_remote_file_system
       end
 
       it "open a connection" do

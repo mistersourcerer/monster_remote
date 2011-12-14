@@ -76,6 +76,7 @@ module Monster
           context "within new remote dir" do
 
             it "check the remote dir existence" do
+              pending
               connection.should_receive(:nslt).with(@new_file_path)
 
               ftp.open(@host, @port, @user, @pass) do |block_instance|
@@ -84,6 +85,7 @@ module Monster
             end
 
             it "check remote dirs only once" do
+              pending
               connection.should_receive(:nslt).with(@new_file_path).once
 
               ftp.open(@host, @port, @user, @pass) do |block_instance|
@@ -93,6 +95,7 @@ module Monster
             end
 
             it "recognize created dir after have checked remote dirs" do
+              pending
               @new_file_path = "/my/remote/file"
               connection.should_receive(:mkdir).with(@new_file_path).once
               ftp.open(@host, @port, @user, @pass) do |block_instance|
@@ -102,12 +105,14 @@ module Monster
             end
 
             it "create the new remote dir" do
+              pending
               @new_file_path = "/test/file"
 
               connection.should_receive(:mkdir).with("/test")
             end
 
             it "create the new remote dir, recursively if needed" do
+              pending
               @new_file_path = "/test/my/new/file"
 
               connection.should_receive(:mkdir).with("/test")
