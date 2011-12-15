@@ -88,11 +88,15 @@ module Monster
         context "#copy_dir" do
 
           it "check existence of root remote dir" do
-            connection.should_receive(:nlst).once
+            connection.should_receive(:ls).with(root_remote_dir).once
           end
 
           it "create root remote dir if it doesn't exists" do
             connection.should_receive(:mkdir).with(root_remote_dir).once
+          end
+
+          it "change current dir to the initial remote dir" do
+            connection.should_receive(:chdir).with(root_remote_dir)
           end
 
           it "create dir structure" do
@@ -128,6 +132,14 @@ module Monster
 
           before(:each) do
             ftp.copy_dir(root_local_dir, root_remote_dir)
+          end
+
+          it "raise NetFTPPermissionDenied" do
+            lambda{
+              NetFTP.new.open(@host, @port, @user, @pass) do |ftp|
+                ftp.copy_dir(root_local_dir, "/")
+              end
+            }.should raise_exception(NetFTPPermissionDenied)
           end
 
           it "replicate local dir on ftp server" do
