@@ -74,51 +74,6 @@ module Monster
         describe "#copy_files" do
 
           context "within new remote dir" do
-
-            it "check the remote dir existence" do
-              pending
-              connection.should_receive(:nslt).with(@new_file_path)
-
-              ftp.open(@host, @port, @user, @pass) do |block_instance|
-                ftp.copy_file("/dir/bizarro/file")
-              end
-            end
-
-            it "check remote dirs only once" do
-              pending
-              connection.should_receive(:nslt).with(@new_file_path).once
-
-              ftp.open(@host, @port, @user, @pass) do |block_instance|
-                ftp.copy_file("/one/bizarre/dir/file")
-                ftp.copy_file("/another/bizarre/file")
-              end
-            end
-
-            it "recognize created dir after have checked remote dirs" do
-              pending
-              @new_file_path = "/my/remote/file"
-              connection.should_receive(:mkdir).with(@new_file_path).once
-              ftp.open(@host, @port, @user, @pass) do |block_instance|
-                ftp.copy_file(@new_file_path)
-                ftp.copy_file("#{@new_file_path}abc")
-              end
-            end
-
-            it "create the new remote dir" do
-              pending
-              @new_file_path = "/test/file"
-
-              connection.should_receive(:mkdir).with("/test")
-            end
-
-            it "create the new remote dir, recursively if needed" do
-              pending
-              @new_file_path = "/test/my/new/file"
-
-              connection.should_receive(:mkdir).with("/test")
-              connection.should_receive(:mkdir).with("/test/my")
-              connection.should_receive(:mkdir).with("/test/my/new")
-            end
           end
 
         end
