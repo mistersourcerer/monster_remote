@@ -18,7 +18,7 @@ module Monster
 
         let(:connection) do
           connection = double("Ftp Connection Mock").as_null_object
-          #connection.stub(:nlst).and_return(remote_dir_list);
+          connection.stub(:ls).with(root_remote_dir).and_return([]);
           connection
         end
 
@@ -89,19 +89,24 @@ module Monster
 
           it "check existence of root remote dir" do
             connection.should_receive(:ls).with(root_remote_dir).once
+            ftp.open(@host, @port, @user, @pass) do |con|
+              con.copy_dir(root_local_dir, root_remote_dir)
+            end
           end
 
           it "create root remote dir if it doesn't exists" do
             connection.should_receive(:mkdir).with(root_remote_dir).once
-          end
-
-          it "change current dir to the initial remote dir" do
-            connection.should_receive(:chdir).with(root_remote_dir)
+            ftp.open(@host, @port, @user, @pass) do |con|
+              con.copy_dir(root_local_dir, root_remote_dir)
+            end
           end
 
           it "create dir structure" do
             dir_structure.each do |dir|
               connection.should_receive(:mkdir).with(File.join(root_remote_dir, dir))
+            end
+            ftp.open(@host, @port, @user, @pass) do |con|
+              con.copy_dir(root_local_dir, root_remote_dir)
             end
           end
         end # context #copy_dir
@@ -134,7 +139,7 @@ module Monster
             ftp.copy_dir(root_local_dir, root_remote_dir)
           end
 
-          it "raise NetFTPPermissionDenied" do
+          it "raise NetFTPPermissionDenied when tries create dir without permission" do
             lambda{
               NetFTP.new.open(@host, @port, @user, @pass) do |ftp|
                 ftp.copy_dir(root_local_dir, "/")

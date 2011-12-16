@@ -1,5 +1,3 @@
-require 'monster/remote/net_ftp_wrapper'
-
 module Monster
   module Remote
 
