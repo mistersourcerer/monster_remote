@@ -8,6 +8,7 @@ module Monster
       class NetFTPPermissionDenied < MonsterRemoteNetFTPWrapper; end
 
       class NetFTP
+
         def initialize(provider = Net::FTP)
           @provider = provider
         end
@@ -23,7 +24,14 @@ module Monster
 
         def copy_dir(local_dir, remote_dir)
           create_if_not_exists(remote_dir)
+
+          remote_root = File.join(remote_dir, File.basename(local_dir))
+          create_if_not_exists(remote_root)
+          local_structure = Dir.entries(local_dir).reject {|entry| entry == "." || entry == ".."}
+          p local_structure
         end
+
+        private
 
         def create_if_not_exists(dir)
           dir_info = @ftp.ls(dir)
@@ -34,7 +42,8 @@ module Monster
         def change_to(dir)
           @ftp.chdir(dir)
         end
-      end
+
+      end # NetFTP
 
     end
   end

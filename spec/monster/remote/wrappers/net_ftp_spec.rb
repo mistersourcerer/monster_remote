@@ -9,16 +9,33 @@ module Monster
         end
 
         def root_local_dir
-          "spec/tmp"
+          File.expand_path("spec/tmp/my")
         end
 
         def root_remote_dir
           "/Users/test/tmp"
         end
 
+        def local_dirs
+          @local_dirs ||= dir_structure.map {|dir| File.join(root_local_dir, dir)}
+        end
+
+        def local_files
+          @local_files ||= @local_dirs.map { |dir| File.join(dir, "file.txt") }
+        end
+
+        def create_local_dir_structure
+          local_dirs.each {|dir| FileUtils.mkdir_p(dir)}
+          local_files.each {|file| File.open(file, "w") {|f| f.write "opalhes"} }
+        end
+
+        def clean_local_dir
+          FileUtils.rm_rf root_local_dir
+        end
+
         let(:connection) do
           connection = double("Ftp Connection Mock").as_null_object
-          connection.stub(:ls).with(root_remote_dir).and_return([]);
+          connection.stub!(:ls).and_return([]);
           connection
         end
 
@@ -48,6 +65,7 @@ module Monster
 
         before(:all) do
           @host, @port, @user, @pass = "localhost", 124523, "I CAN HAZ USER", "mi mi mi my secret"
+          create_local_dir_structure
         end
 
         context "#open, operations within the a block" do
@@ -83,27 +101,32 @@ module Monster
               con.should be_equal(connection)
             end
           end 
+
+          after(:each) do
+            connection.clear_actual_received_count!
+          end
         end # context #open
 
         context "#copy_dir" do
 
           it "check existence of root remote dir" do
-            connection.should_receive(:ls).with(root_remote_dir).once
             ftp.open(@host, @port, @user, @pass) do |con|
               con.copy_dir(root_local_dir, root_remote_dir)
             end
           end
 
           it "create root remote dir if it doesn't exists" do
-            connection.should_receive(:mkdir).with(root_remote_dir).once
+            connection.should_receive(:mkdir).with(root_remote_dir)
             ftp.open(@host, @port, @user, @pass) do |con|
               con.copy_dir(root_local_dir, root_remote_dir)
             end
           end
 
           it "create dir structure" do
+            connection.should_receive(:mkdir).with(root_remote_dir)
             dir_structure.each do |dir|
-              connection.should_receive(:mkdir).with(File.join(root_remote_dir, dir))
+              dir_to_create = File.join(root_remote_dir, dir)
+              connection.should_receive(:mkdir).with(dir_to_create)
             end
             ftp.open(@host, @port, @user, @pass) do |con|
               con.copy_dir(root_local_dir, root_remote_dir)
@@ -113,25 +136,7 @@ module Monster
 
         context "#copy_dir, integration" do
 
-          def local_dirs
-            @local_dirs ||= dir_structure.map {|dir| File.join(root_local_dir, dir)}
-          end
-
-          def local_files
-            @local_files ||= @local_dirs.map { |dir| File.join(dir, "file.txt") }
-          end
-
-          def create_local_dir_structure
-            local_dirs.each {|dir| FileUtils.mkdir_p(dir)}
-            local_files.each {|file| File.open(file, "w") {|f| f.write "opalhes"} }
-          end
-
-          def clean_local_dir
-            FileUtils.rm_rf root_local_dir
-          end
-
           before(:all) do
-            create_local_dir_structure
             @host, @port, @user, @pass = "localhost", 21, "test", "test"
           end
 
@@ -154,10 +159,11 @@ module Monster
             Dir.entries(root_local_dir).should == Dir.entries(root_remote_dir)
           end
 
-          after(:all) do
-            clean_local_dir
-          end
         end # #copy_dir integration
+
+        after(:all) do
+          clean_local_dir
+        end
 
       end # describe NetFTP
     end
