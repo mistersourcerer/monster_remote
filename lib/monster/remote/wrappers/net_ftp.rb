@@ -49,7 +49,7 @@ module Monster
         end
 
         def copy_file(from, to)
-          puts "copying file #{from} : #{to}"
+          @ftp.putbinaryfile(from, to)
         end
 
         def filter(dir_structure)

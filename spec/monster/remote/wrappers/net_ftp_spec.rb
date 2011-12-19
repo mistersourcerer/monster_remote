@@ -134,6 +134,20 @@ module Monster
 
         context "#copy_dir, integration" do
 
+          def dir_entries(root_dir)
+            entries = []
+            entries << root_dir
+            Dir.entries(root_dir).reject{|entry| entry == "." || entry == ".."}.each do |entry_name|
+              dir = File.join(root_dir, entry_name)
+              if File.directory?(dir)
+                entries += dir_entries(dir)
+              else
+                entries << dir
+              end
+            end
+            entries
+          end
+
           before(:all) do
             @host, @port, @user, @pass = "localhost", 21, "test", "test"
           end
@@ -150,15 +164,15 @@ module Monster
             NetFTP.new.open(@host, @port, @user, @pass) do |ftp|
               ftp.copy_dir(root_local_dir, root_remote_dir)
             end
-            Dir.entries(root_local_dir).should == Dir.entries(root_remote_dir)
+            local_structure = dir_entries(root_local_dir).map {|entry| entry.gsub(root_local_dir, "")}
+            remote_structure = dir_entries(root_remote_dir).map {|entry| entry.gsub(root_remote_dir, "")}
+            remote_structure.should == local_structure
           end
-
         end # #copy_dir integration
 
         after(:all) do
           clean_local_dir
         end
-
       end # describe NetFTP
     end
   end
