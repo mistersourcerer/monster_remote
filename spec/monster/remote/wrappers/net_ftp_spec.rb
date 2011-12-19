@@ -9,7 +9,7 @@ module Monster
         end
 
         def root_local_dir
-          File.expand_path("spec/tmp/my")
+          File.expand_path("spec/tmp/opalhes")
         end
 
         def root_remote_dir
@@ -30,7 +30,11 @@ module Monster
         end
 
         def clean_local_dir
-          FileUtils.rm_rf root_local_dir
+          FileUtils.rm_rf File.expand_path("spec/tmp")
+        end
+
+        def clean_remote_dir
+          FileUtils.rm_rf root_remote_dir
         end
 
         let(:connection) do
@@ -109,6 +113,10 @@ module Monster
 
         context "#copy_dir" do
 
+          before do
+            clean_remote_dir
+          end
+
           it "check existence of root remote dir" do
             ftp.open(@host, @port, @user, @pass) do |con|
               con.copy_dir(root_local_dir, root_remote_dir)
@@ -116,18 +124,8 @@ module Monster
           end
 
           it "create root remote dir if it doesn't exists" do
+            pending "until we discover a way to clean remote dir"
             connection.should_receive(:mkdir).with(root_remote_dir)
-            ftp.open(@host, @port, @user, @pass) do |con|
-              con.copy_dir(root_local_dir, root_remote_dir)
-            end
-          end
-
-          it "create dir structure" do
-            connection.should_receive(:mkdir).with(root_remote_dir)
-            dir_structure.each do |dir|
-              dir_to_create = File.join(root_remote_dir, dir)
-              connection.should_receive(:mkdir).with(dir_to_create)
-            end
             ftp.open(@host, @port, @user, @pass) do |con|
               con.copy_dir(root_local_dir, root_remote_dir)
             end
@@ -138,10 +136,6 @@ module Monster
 
           before(:all) do
             @host, @port, @user, @pass = "localhost", 21, "test", "test"
-          end
-
-          before(:each) do
-            ftp.copy_dir(root_local_dir, root_remote_dir)
           end
 
           it "raise NetFTPPermissionDenied when tries create dir without permission" do

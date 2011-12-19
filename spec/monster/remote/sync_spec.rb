@@ -18,6 +18,7 @@ module Monster
         class RemoteProtocolProviderMock
           class << self; attr_accessor :connection; end
           def open(*args); yield(RemoteProtocolProviderMock.connection); end
+          def add_filter(filter); end
         end
         RemoteProtocolProviderMock.connection = connection
         RemoteProtocolProviderMock.new
@@ -32,6 +33,10 @@ module Monster
           port(port).
           user(user).
           pass(pass)
+
+        filter = ContentNameBasedFilter.new
+        filter.reject([".", ".."])
+        @sync.add_filter(filter)
       end
 
       context "sending static site" do

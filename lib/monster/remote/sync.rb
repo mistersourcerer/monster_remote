@@ -13,6 +13,10 @@ module Monster
         end
       end
 
+      def add_filter(filter)
+        @provider.add_filter(filter)
+      end
+
       def local_dir(local_dir)
         @local_dir = local_dir
         self

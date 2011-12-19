@@ -12,25 +12,29 @@ module Monster
           rejections = become_block(reject_logic)
         end
         @rejecting += rejections
-      end
-
-      def become_block(reject)
-        rejection_blocks = []
-        reject = [reject] unless reject.respond_to? :each
-        reject.each do |to_reject|
-          rejection_blocks << lambda {
-            |entries| entries.reject { |entry| to_reject == entry }
-          }
-        end
-        rejection_blocks
+        self
       end
 
       def filter(directory)
+        return [] if directory.nil?
         allowed = become_array(directory)
         @rejecting.each do |logic|
           allowed = logic.call(allowed)
         end
         allowed
+      end
+
+      private
+
+      def become_block(reject)
+        rejection_blocks = []
+        reject = [reject] unless reject.respond_to? :each
+        reject.each do |to_reject|
+          rejection_blocks << lambda { |entries|
+            entries.reject { |entry| to_reject == entry }
+          }
+        end
+        rejection_blocks
       end
 
       def become_array(to_reject)
