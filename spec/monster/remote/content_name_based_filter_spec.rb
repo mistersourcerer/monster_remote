@@ -36,7 +36,7 @@ module Monster
             @filter.filter(rejecting + ["opalhes"]).should == ["opalhes"]
           end
 
-          it "accept a block which make the rejection logic" do
+          it "accept a block with rejection logic, the list is passed as argument" do
             @filter.reject lambda{ |entries| entries.reject{|entry| entry != "borba"} }
             @filter.filter(["a", "b", "borba"]).should == ["borba"]
           end

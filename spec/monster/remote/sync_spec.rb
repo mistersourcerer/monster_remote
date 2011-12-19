@@ -51,12 +51,36 @@ module Monster
           @sync.start
         end
 
+        context "default values" do
+          before do
+            @sync = Sync.with.
+              remote_connection_provider(provider).
+              host(host).
+              user(user).
+              pass(pass)
+          end
+
+          it "use port 21 as default port" do
+            provider.should_receive(:open).with(host, 21, user, pass)
+            @sync.start
+          end
+
+          it "consider ./_site as default local dir" do
+            connection.should_receive(:copy_dir).with("./_site", ".")
+            @sync.start
+          end
+
+          it "consider . as default remote dir" do
+            connection.should_receive(:copy_dir).with("./_site", ".")
+            @sync.start
+          end
+
+          it "use NetFTP as default connection provider" do
+            pending "we don't know how to test it yet"
+          end
+
+        end # default values
       end # sending static site
-
-      context "building static site" do
-
-      end
-
     end #describe Sync
   end
 end
