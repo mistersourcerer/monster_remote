@@ -34,10 +34,14 @@ Monster will rely on this configurations if you execute it like this:
   monster --ftp
 
 ##Filtering specific files
-You can create a file called `monster_config.rb` on your project to
-customize some Monster's behaviours. One remarkable thing you can do is
-to filter the files that monster should ignore, so they stay only on
-your machine.
+A filter is a any object which `responds_to? :filter`. An array with all
+`_site` dir structure will be passed as argument. `monster_remote` is shipped
+with a name_based_filter. You can use it like this:
+
+-- just use the examples from the spec here
+
+-- now explain how one could implement and add his own filter to the
+stack
 
 ```ruby
 Monster::Remote::something something something...

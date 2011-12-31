@@ -3,6 +3,7 @@ module Monster
     module Filters
 
       describe ContentNameBasedFilter do
+
         def create_fake_dirs
           @all_entries.each do |dir|
             FileUtils.mkdir_p(File.join(@root_dir, dir))
@@ -50,7 +51,7 @@ module Monster
         after(:all) do
           FakeFS.deactivate!
         end
-      end
+      end # describe ContentNameBasedFilter
     end
   end
 end
