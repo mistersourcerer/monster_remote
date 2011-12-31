@@ -1,5 +1,5 @@
 #encoding: utf-8
 
 $: << File.join(File.expand_path('../', __FILE__), 'lib')
-require 'monster/remote'
+require 'monster_remote'
 require 'fakefs/safe'
