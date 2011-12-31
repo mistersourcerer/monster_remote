@@ -33,4 +33,14 @@ Monster will rely on this configurations if you execute it like this:
 
   monster --ftp
 
+##Filtering specific files
+You can create a file called `monster_config.rb` on your project to
+customize some Monster's behaviours. One remarkable thing you can do is
+to filter the files that monster should ignore, so they stay only on
+your machine.
+
+```ruby
+Monster::Remote::something something something...
+```
+
 ###Plugin a new connection provider
