@@ -20,6 +20,10 @@ Gem::Specification.new do |s|
 
 	s.require_path = 'lib'
 	
-  s.files         = ["Gemfile", "LICENSE", "README.md", "Rakefile", "lib/monster/remote.rb", "lib/monster/remote/content_name_based_filter.rb", "lib/monster/remote/sync.rb", "lib/monster/remote/tasks/gemspec.erb", "lib/monster/remote/tasks/gemspec_generator.rb", "lib/monster/remote/version.rb", "lib/monster/remote/wrappers/net_ftp.rb", "monster_remote.gemspec", "spec/monster/remote/content_name_based_filter_spec.rb", "spec/monster/remote/sync_spec.rb", "spec/monster/remote/wrappers/net_ftp_spec.rb", "spec/spec_helper.rb"]
+  s.files         = ["Gemfile", "LICENSE", "README.md", "Rakefile", "lib/monster/remote.rb", "lib/monster/remote/content_name_based_filter.rb", "lib/monster/remote/sync.rb", "lib/monster/remote/wrappers/net_ftp.rb", "lib/monster_remote.rb", "monster_remote.gemspec", "spec/monster/remote/content_name_based_filter_spec.rb", "spec/monster/remote/sync_spec.rb", "spec/monster/remote/wrappers/net_ftp_spec.rb", "spec/spec_helper.rb"]
   s.test_files    = ["spec/monster/remote/content_name_based_filter_spec.rb", "spec/monster/remote/sync_spec.rb", "spec/monster/remote/wrappers/net_ftp_spec.rb", "spec/spec_helper.rb"]
+
+	
+  s.executables  = []
+	
 end
