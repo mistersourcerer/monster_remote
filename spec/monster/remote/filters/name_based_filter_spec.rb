@@ -2,7 +2,7 @@ module Monster
   module Remote
     module Filters
 
-      describe ContentNameBasedFilter do
+      describe NameBasedFilter do
 
         def create_fake_dirs
           @all_entries.each do |dir|

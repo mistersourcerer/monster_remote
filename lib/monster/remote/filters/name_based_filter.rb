@@ -1,7 +1,7 @@
 module Monster
   module Remote
 
-    class ContentNameBasedFilter
+    class NameBasedFilter
 
       def reject(reject_logic)
         @rejecting ||= []

@@ -31,20 +31,64 @@ informations on your jekyll configuration file:
 
 Monster will rely on this configurations if you execute it like this:
 
-  monster --ftp
+  monster_remote --ftp
 
-##Filtering specific files
-A filter is a any object which `responds_to? :filter`. An array with all
-`_site` dir structure will be passed as argument. `monster_remote` is shipped
-with a name_based_filter. You can use it like this:
-
--- just use the examples from the spec here
-
--- now explain how one could implement and add his own filter to the
-stack
+#Filtering specific files
+A filter is an object which `respond_to? :filter`, you can stack
+filters within of the synchronization execution. The code to do that
+has to stay on a `monster_config.rb`, create this file on the root
+directory of your jekyll site:
 
 ```ruby
-Monster::Remote::something something something...
+# monster_config.rb
+
+Monster::Remote::add_filter(my_filter)
+```
+
+`monster_remote` is shipped with a "name_based_filter", if you want to
+reject specific files or directories based on the name, you could do
+something like these:
+
+```ruby
+# monster_config.rb
+
+my_filter = Monster::Remote::Filters::NameBasedFilter.new
+my_filter.reject /^.*rc/
+my_filter.reject /^not_allowed_dir\//
+
+Monster::Remote::add_filter(my_filter)
+```
+
+The above example will reject any file starting with a "." and ending
+with "rc", wich is pretty much any "classic" configuration file that you
+have on your directory. Neither "not_allowed_dir" gonna be synced. You
+could provide an array if you prefer:
+
+```ruby
+my_filter.reject [/^.*rc/, /ˆnot_allowed_dir\//]`
+```
+
+Or you could use a string:
+
+```ruby
+my_filter.reject ".my_secret_file"
+```
+
+If you need execute more specific or complex logic, you could use a "raw
+filter". Just provides a block with the logic you need, an array with
+the dir structure will be passed as argument and a filtered array should
+be returned. Just files and dirs on the result array will be synced:
+
+```ruby
+my_custom_filter = Monster::Remote::Filters::Filter.new
+my_custom_filter.reject lambda { |entries|
+  # do whatever you need here, for example:
+  entries.reject do |entry|
+    entry =~ /^.*rc/ || entry =~ /^not_allowed_dir\//
+  end
+}
+
+Monster::Remote::add_filter(my_custom_filter)
 ```
 
 ###Plugin a new connection provider
