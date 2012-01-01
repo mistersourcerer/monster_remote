@@ -12,26 +12,27 @@ After install the gem
 
 A new executable is gonna be at your service: `monster_remote`.
 
-##Stablishing connection
+##Syncing
 Enter the jekyll blog root path and type:
 
-    monster --ftp -s [your_server_address] -u [your_user_here]
+    monster_remote [--ftp] -s 'your_server_address' -u 'your_user_here'
 
-The --ftp option is default, this first options is about which type of
-connection the monster should try to stablish. You will be prompted for
-your password.
+The --ftp option is default, you could create you own connection
+provider if you need it.
 
-You can reduce the size of the command by configuring some of these
-informations on your jekyll configuration file:
+You will be prompted for your password. To reduce the size of the
+command by configuring some of these informations on your jekyll
+configuration file:
 
     monster:
       remote:
         host: xpto.com
         user: omg_my_user
 
-Monster will rely on this configurations if you execute it like this:
+Monster will rely on this configurations if you execute it without -s
+and -u params like this:
 
-  monster_remote --ftp
+  monster_remote
 
 ##Filtering specific files
 A filter is an object which `respond_to? :filter`, you can stack
