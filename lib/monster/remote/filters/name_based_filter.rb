@@ -1,27 +1,24 @@
+require 'monster/remote/filters/filter'
+
 module Monster
   module Remote
 
-    class NameBasedFilter
+    class NameBasedFilter < Filter
 
       def reject(reject_logic)
-        @rejecting ||= []
-        rejections = []
         if reject_logic.respond_to? :call
-          rejections << reject_logic
+          super(reject_logic)
         else
-          rejections = become_block(reject_logic)
+          become_block(reject_logic).each do |rejection|
+            super(rejection)
+          end
         end
-        @rejecting += rejections
         self
       end
 
       def filter(directory)
-        return [] if directory.nil?
-        allowed = become_array(directory)
-        @rejecting.each do |logic|
-          allowed = logic.call(allowed)
-        end
-        allowed
+        dir_structure = become_array(directory)
+        super(dir_structure)
       end
 
       private
