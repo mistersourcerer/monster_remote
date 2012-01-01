@@ -12,7 +12,7 @@ After install the gem
 
 A new executable is gonna be at your service: `monster_remote`.
 
-#Stablishing connection
+##Stablishing connection
 Enter the jekyll blog root path and type:
 
     monster --ftp -s [your_server_address] -u [your_user_here]
@@ -33,7 +33,7 @@ Monster will rely on this configurations if you execute it like this:
 
   monster_remote --ftp
 
-#Filtering specific files
+##Filtering specific files
 A filter is an object which `respond_to? :filter`, you can stack
 filters within of the synchronization execution. The code to do that
 has to stay on a `monster_config.rb`, create this file on the root
@@ -91,4 +91,4 @@ my_custom_filter.reject lambda { |entries|
 Monster::Remote::add_filter(my_custom_filter)
 ```
 
-###Plugin a new connection provider
+##Plugin a new connection provider
