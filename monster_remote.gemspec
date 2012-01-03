@@ -20,10 +20,10 @@ Gem::Specification.new do |s|
 
 	s.require_path = 'lib'
 	
-  s.files         = ["Gemfile", "LICENSE", "README.md", "Rakefile", "lib/monster/remote.rb", "lib/monster/remote/content_name_based_filter.rb", "lib/monster/remote/sync.rb", "lib/monster/remote/wrappers/net_ftp.rb", "lib/monster_remote.rb", "monster_remote.gemspec", "spec/monster/remote/content_name_based_filter_spec.rb", "spec/monster/remote/sync_spec.rb", "spec/monster/remote/wrappers/net_ftp_spec.rb", "spec/spec_helper.rb"]
-  s.test_files    = ["spec/monster/remote/content_name_based_filter_spec.rb", "spec/monster/remote/sync_spec.rb", "spec/monster/remote/wrappers/net_ftp_spec.rb", "spec/spec_helper.rb"]
+  s.files         = ["Gemfile", "LICENSE", "README.md", "Rakefile", "bin/monster_remote", "lib/monster/remote.rb", "lib/monster/remote/cli.rb", "lib/monster/remote/filters/filter.rb", "lib/monster/remote/filters/name_based_filter.rb", "lib/monster/remote/sync.rb", "lib/monster/remote/wrappers/net_ftp.rb", "lib/monster_remote.rb", "monster_remote.gemspec", "spec/monster/remote/cli_spec.rb", "spec/monster/remote/filters/filter_spec.rb", "spec/monster/remote/filters/name_based_filter_spec.rb", "spec/monster/remote/sync_specula.rb", "spec/monster/remote/wrappers/net_ftp_specula.rb", "spec/spec_helper.rb"]
+  s.test_files    = ["spec/monster/remote/cli_spec.rb", "spec/monster/remote/filters/filter_spec.rb", "spec/monster/remote/filters/name_based_filter_spec.rb", "spec/monster/remote/sync_specula.rb", "spec/monster/remote/wrappers/net_ftp_specula.rb", "spec/spec_helper.rb"]
 
 	
-  s.executables  = []
+  s.executables  = ["monster_remote"]
 	
 end

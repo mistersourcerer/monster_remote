@@ -1,1 +1,16 @@
 #!/usr/bin/env ruby
+lib = File.expand_path("../../lib", __FILE__)
+$:.unshift lib unless $:.include?(lib)
+
+require 'monster_remote'
+
+begin
+  Monster::Remote::CLI.new.run
+rescue Interrupt => e
+  exit 1
+rescue SystemExit => e
+  exit e.status
+rescue Exception => e
+  raise e
+end
+
