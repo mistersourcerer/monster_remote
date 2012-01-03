@@ -23,7 +23,12 @@ module Monster
           @filter = subject
         end
 
-        describe "#reject, configuring forbbiden names" do
+        it "accepts a dir name and return only allowed entries" do
+          @filter.reject @forbidden
+          @filter.filter(@root_dir).should == @allowed
+        end
+
+        context "#reject, configuring forbbiden names" do
 
           it "accept string as parameter" do
             @filter.reject "."
@@ -42,11 +47,6 @@ module Monster
             @filter.filter(["a", "b", "borba"]).should == ["borba"]
           end
         end # #reject
-
-        it "accepts a dir name and return only allowed entries" do
-          @filter.reject @forbidden
-          @filter.filter(@root_dir).should == @allowed
-        end
 
         after(:all) do
           FakeFS.deactivate!
