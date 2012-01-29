@@ -36,9 +36,9 @@ and -u params like this:
 
 ##Filtering specific files
 A filter is an object which `respond_to? :filter`, you can stack
-filters within of the synchronization execution. The code to do that
-has to stay on a `monster_config.rb`, create this file on the root
-directory of your jekyll site:
+filters within the synchronization execution. The code to do that
+has to stay on a `monster_config.rb` or a `config.rb`, create
+this file on the root directory of your jekyll site:
 
 ```ruby
 # monster_config.rb
@@ -60,10 +60,11 @@ my_filter.reject /^not_allowed_dir\//
 Monster::Remote::add_filter(my_filter)
 ```
 
-The above example will reject any file starting with a "." and ending
-with "rc", wich is pretty much any "classic" configuration file that you
-have on your directory. Neither "not_allowed_dir" gonna be synced. You
-could provide an array if you prefer:
+Note: the param to `#reject` can be a valid regex, so you could define
+some fine grained rules here. The above example will reject any file
+starting with a "." and ending with "rc", wich is pretty much any
+"classic" configuration file that you have on your directory. Neither
+"not_allowed_dir" gonna be synced. You could provide an array if you prefer:
 
 ```ruby
 my_filter.reject [/^.*rc/, /ˆnot_allowed_dir\//]`
@@ -90,6 +91,20 @@ my_custom_filter.reject lambda { |entries|
 }
 
 Monster::Remote::add_filter(my_custom_filter)
+```
+
+Since a filter is an object which `responds_to? :filter` you could
+implement your filter in a class. The `#filter` will receive an array
+with the list of files and dirs in given directory, you need to return a
+new array with only the allowed files and dirs:
+
+```ruby
+class MyOMGFilter
+  def filter(entries)
+    // your logic here
+    return new_filtered_array
+  end
+end
 ```
 
 ##Plugin a new connection provider
