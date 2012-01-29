@@ -107,4 +107,19 @@ class MyOMGFilter
 end
 ```
 
-##Plugin a new connection provider
+#Protocol Wrappers
+A wrapper is an object with the following methods:
+ * ::new(host=nil, user=nil, password=nil, port=nil)
+ * #local_dir=(local_dir=".")
+ * #remote_dir=(local_dir=nil)
+ * #open
+    - called when the synchrony starts
+    - if a block is given, it will be yielded and two arguments will be
+      passed to the block: the wrapper object and the real connection
+      object (you can ignore the second argument if you want)
+ * #copy_dir
+    - copies a dir recursively to the remote location (calling itself
+      for each dir found on the current dir structure)
+
+Internally a wrapper will use a real "thing" (like the default Net::FTP)
+to replicate the local dir structure to the remote dir.
