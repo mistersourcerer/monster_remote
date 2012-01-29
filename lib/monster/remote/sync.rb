@@ -3,6 +3,22 @@ module Monster
 
     class Sync
 
+      def initialize(wrapper)
+        @wrapper = wrapper
+      end
+
+      def start
+        wrapper
+      end# start
+
+      private
+      def wrapper
+        @wrapper || raise(MissingProtocolWrapperError)
+      end
+    end# Sync
+
+    class SyncOld
+
       def self.with
         Sync.new
       end

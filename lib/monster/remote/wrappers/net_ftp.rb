@@ -2,12 +2,21 @@ require 'net/ftp'
 
 module Monster
   module Remote
+
+    class MissingLocalDirError < StandardError; end
+
     module Wrappers
 
       class MonsterRemoteNetFTPWrapper < StandardError; end
       class NetFTPPermissionDenied < MonsterRemoteNetFTPWrapper; end
 
       class NetFTP
+
+        def sync
+        end#sync
+      end# NetFTP
+
+      class NetFTPOld
 
         def initialize(provider = Net::FTP)
           @provider = provider
