@@ -109,6 +109,7 @@ end
 
 #Protocol Wrappers
 A wrapper is an object with the following methods:
+
  * ::new(host=nil, user=nil, password=nil, port=nil)
  * #local_dir=(local_dir=".")
  * #remote_dir=(local_dir=nil)
