@@ -27,6 +27,7 @@ module Monster
         end
 
         it "call wrapper's #open" do
+          wrapper.stub(:open) { |bloco| bloco && bloco.call(wrapper) }
           wrapper.should_receive(:copy_dir).with(local_dir, remote_dir)
           # add times here, should receive copy_dir for each dir in the
           # stucture

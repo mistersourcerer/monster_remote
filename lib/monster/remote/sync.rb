@@ -11,10 +11,19 @@ module Monster
         wrapper = @wrapper || raise(MissingProtocolWrapperError)
         open(wrapper) do |wrapper|
           wrapper.copy_dir(local_dir, remote_dir)
+          # diggin into local dir calling copy_dir here...
         end
       end# start
 
       private
+      def local_dir
+        @local_dir
+      end
+
+      def remote_dir
+        @remote_dir
+      end
+
       def open(wrapper, &block)
         begin
           wrapper.open &block
