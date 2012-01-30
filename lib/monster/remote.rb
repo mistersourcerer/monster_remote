@@ -9,5 +9,7 @@ module Monster
 
     class MissingProtocolWrapperError < StandardError; end
     class NoConnectionError < StandardError; end
+    class MissingLocalDirError < StandardError; end
+    class MissingRemoteDirError < StandardError; end
   end
 end

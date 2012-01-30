@@ -3,19 +3,36 @@ module Monster
 
     class Sync
 
+      attr_writer :verbose, :local_dir, :remote_dir
+
       def initialize(wrapper)
         @wrapper = wrapper
       end
 
       def start
         wrapper = @wrapper || raise(MissingProtocolWrapperError)
+        local_dir || raise(MissingLocalDirError)
+        remote_dir || raise(MissingRemoteDirError)
+
+        out("syncing from: #{local_dir} to: #{remote_dir}")
+
         open(wrapper) do |wrapper|
-          wrapper.copy_dir(local_dir, remote_dir)
           # diggin into local dir calling copy_dir here...
+          Dir.entries(local_dir).each do |entry|
+            item = File.join(local_dir, entry)
+            remote_item = File.join(remote_dir, entry)
+            if File.directory?(item)
+              wrapper.create_dir(remote_item)
+            end
+          end
         end
-      end# start
+      end
 
       private
+      def out(msg)
+        @verbose && @verbose.puts(msg)
+      end
+
       def local_dir
         @local_dir
       end
@@ -28,7 +45,7 @@ module Monster
         begin
           wrapper.open &block
         rescue Exception => e
-          raise NoConnectionError.new(e)
+          raise NoConnectionError, e
         end
       end
 
