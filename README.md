@@ -118,7 +118,7 @@ A wrapper is an object with the following methods:
     - if a block is given, it will be yielded and two arguments will be
       passed to the block: the wrapper object and the real connection
       object (you can ignore the second argument if you want)
- * #copy_dir
+ * #copy_dir(from, to)
     - copies a dir recursively to the remote location (calling itself
       for each dir found on the current dir structure)
 
