@@ -3,6 +3,8 @@ module Monster
 
     describe Sync do
 
+      let(:local_dir) { File.join(spec_tmp, "_ftp_") }
+      let(:remote_dir) { File.join("tmp", "_ftp_") }
       let(:wrapper) { double("wrapper").as_null_object }
       let(:sync) { Sync.new(wrapper) }
 
@@ -25,7 +27,7 @@ module Monster
         end
 
         it "call wrapper's #open" do
-          wrapper.should_receive(:copy_dir).with(local_dir_path)
+          wrapper.should_receive(:copy_dir).with(local_dir, remote_dir)
           # add times here, should receive copy_dir for each dir in the
           # stucture
           sync.start

@@ -8,19 +8,21 @@ module Monster
       end
 
       def start
-        protocol = wrapper
-
-        begin
-          protocol.open
-        rescue Exception => e
-          raise NoConnectionError.new(e)
+        wrapper = @wrapper || raise(MissingProtocolWrapperError)
+        open(wrapper) do |wrapper|
+          wrapper.copy_dir(local_dir, remote_dir)
         end
       end# start
 
       private
-      def wrapper
-        @wrapper || raise(MissingProtocolWrapperError)
+      def open(wrapper, &block)
+        begin
+          wrapper.open &block
+        rescue Exception => e
+          raise NoConnectionError.new(e)
+        end
       end
+
     end# Sync
 
     class SyncOld
