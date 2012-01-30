@@ -8,7 +8,13 @@ module Monster
       end
 
       def start
-        wrapper
+        protocol = wrapper
+
+        begin
+          protocol.open
+        rescue Exception => e
+          raise NoConnectionError.new(e)
+        end
       end# start
 
       private

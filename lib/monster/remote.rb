@@ -8,5 +8,6 @@ module Monster
   module Remote
 
     class MissingProtocolWrapperError < StandardError; end
+    class NoConnectionError < StandardError; end
   end
 end
