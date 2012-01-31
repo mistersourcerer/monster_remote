@@ -18,39 +18,37 @@ module Monster
 
         open(wrapper) do |wrapper|
           out("connection openned, using: #{wrapper}")
-          out("creating root dir (#{remote_dir})")
-          wrapper.create_dir(remote_dir)
           copy_to_remote(wrapper, local_dir)
         end
       end
 
       private
-      def copy_to_remote(wrapper, entry, path=nil)
-        first_iteration = !path && File.directory?(entry)
-        if first_iteration
-          Dir.entries(entry).each do |dir|
-            copy_to_remote(wrapper, dir, "/")
-          end
+      def create_dir(wrapper, remote_dir_path, local_dir_path, entry_path)
+        out("creating dir #{remote_dir_path}")
+        wrapper.create_dir(remote_dir_path)
+        out("diggin into #{local_dir_path}")
+        Dir.entries(local_dir_path).each do |dir|
+          copy_to_remote(wrapper, dir, entry_path)
         end
+      end
 
-        if path && (entry != "." && entry != "..")
-          entry_path = File.join(path, entry)
-          from = File.join(local_dir, entry_path)
-          to = File.join(remote_dir, entry_path)
+      def copy_file(wrapper, local_file, remote_file)
+        out("coping file to #{remote_file}")
+        wrapper.copy_file(local_file, remote_file)
+      end
 
-          if File.directory?(from)
-            out("creating dir #{to}")
-            wrapper.create_dir(to)
-            out("diggin into #{from}")
-            Dir.entries(from).each do |dir|
-              if dir != "." && dir != ".."
-                copy_to_remote(wrapper, dir, entry_path)
-              end
-            end
-          else
-            out("coping file to #{to}")
-            wrapper.copy_file(from, to)
-          end
+      def copy_to_remote(wrapper, entry, path=nil)
+        is_dot_dir = entry =~ /^\.$|^\.\.$/
+        return if is_dot_dir
+
+        entry_path = path ? File.join(path, entry) : ""
+        local_path = File.join(local_dir, entry_path).gsub(/\.*\/$/, "")
+        remote_path = File.join(remote_dir, entry_path).gsub(/\.*\/$/, "")
+
+        if File.directory?(local_path)
+          create_dir(wrapper, remote_path, local_path, entry_path)
+        else
+          copy_file(wrapper, local_path, remote_path)
         end
       end
 
