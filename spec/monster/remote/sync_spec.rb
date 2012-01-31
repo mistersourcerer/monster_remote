@@ -3,7 +3,19 @@ module Monster
 
     describe Sync do
 
-      let(:dir_structure) do
+      let(:wrapper) {
+        w = double("wrapper contract").as_null_object
+        # pretend to stub new was the unique way i found to say that the constructor have
+        # these parameters to receive, better solutions for this will be
+        # apreciated
+        w.stub(:new) { |host, user, password, port| }
+        w.stub(:open) { |block| block && block.call(wrapper) }
+        w.stub(:create_dir) { |dir| }
+        w.stub(:copy_file) { |from, to| }
+        w
+      }
+
+      let(:dir_structure) {
         {
           "site" => ["xpto.txt"],
           "site/images" => ["img1", "img2", "img3"],
@@ -11,16 +23,20 @@ module Monster
           "site/borba/subdir" => ["entaro", "adum", "toredas"],
           "site/borba/subdir/test" => ["go1", "go2", "go3"]
         }
-      end
+      }
+
       let(:local_dir) { File.join(spec_tmp, "_ftp_") }
+
       let(:remote_dir) { File.join("tmp", "_ftp_") }
-      let(:wrapper) { double("wrapper").as_null_object }
+
       let(:sync) do
         s = Sync.new(wrapper)
         s.local_dir = local_dir
         s.remote_dir = remote_dir
+        s.verbose = STDOUT
         s
       end
+
       let(:verbose) { double("some object with #puts").as_null_object }
 
       def create_dir_structure

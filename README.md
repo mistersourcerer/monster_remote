@@ -111,8 +111,6 @@ end
 A wrapper is an object with the following methods:
 
  * ::new(host=nil, user=nil, password=nil, port=nil)
- * #local_dir=(local_dir=".")
- * #remote_dir=(local_dir=nil)
  * #open
     - called when the synchrony starts
     - if a block is given, it will be yielded and two arguments will be

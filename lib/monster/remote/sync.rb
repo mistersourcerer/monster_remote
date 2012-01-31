@@ -17,18 +17,28 @@ module Monster
         out("syncing from: #{local_dir} to: #{remote_dir}")
 
         open(wrapper) do |wrapper|
-          # diggin into local dir calling copy_dir here...
+          out("connection openned, using: #{wrapper}")
           Dir.entries(local_dir).each do |entry|
-            item = File.join(local_dir, entry)
-            remote_item = File.join(remote_dir, entry)
-            if File.directory?(item)
-              wrapper.create_dir(remote_item)
-            end
+            copy_to_remote(wrapper, entry)
           end
         end
       end
 
       private
+      def copy_to_remote(wrapper, entry)
+        item = File.join(local_dir, entry)
+        remote_item = File.join(remote_dir, entry)
+        if File.directory?(item)
+          out("creating remote dir #{remote_item}")
+          wrapper.create_dir(remote_item)
+          Dir.entries(item).each do |dir|
+            puts ":::::::::"
+            puts File.join(item, dir)
+            copy_to_remote(wrapper, File.join(item, dir))
+          end
+        end
+      end
+
       def out(msg)
         @verbose && @verbose.puts(msg)
       end
