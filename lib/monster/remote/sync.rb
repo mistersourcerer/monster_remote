@@ -26,7 +26,8 @@ module Monster
 
       private
       def copy_to_remote(wrapper, entry, path=nil)
-        if !path && File.directory?(entry)
+        first_iteration = !path && File.directory?(entry)
+        if first_iteration
           Dir.entries(entry).each do |dir|
             copy_to_remote(wrapper, dir, "/")
           end
