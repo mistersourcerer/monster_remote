@@ -3,17 +3,6 @@ module Monster
 
     describe Sync do
 
-      let(:wrapper) {
-        w = double("wrapper contract").as_null_object
-        # pretend to stub new was the unique way i found to say that the constructor have
-        # these parameters to receive, better solutions for this will be
-        # apreciated
-        w.stub(:new) { |host, user, password, port| }
-        w.stub(:open) { |block| block && block.call(wrapper) }
-        w.stub(:create_dir) { |dir| }
-        w.stub(:copy_file) { |from, to| }
-        w
-      }
 
       let(:dir_structure) {
         {
@@ -29,14 +18,6 @@ module Monster
 
       let(:remote_dir) { File.join("tmp", "_ftp_") }
 
-      let(:sync) do
-        s = Sync.new(wrapper)
-        s.local_dir = local_dir
-        s.remote_dir = remote_dir
-        s.verbose = STDOUT
-        s
-      end
-
       let(:verbose) { double("some object with #puts").as_null_object }
 
       def create_dir_structure
@@ -51,6 +32,17 @@ module Monster
         end
       end
 
+      def wrapper
+        double("wrapper contract").as_null_object
+      end
+
+      def sync(wrapper)
+        s = Sync.new(wrapper)
+        s.local_dir = local_dir
+        s.remote_dir = remote_dir
+        s
+      end
+
       before do
         FileUtils.mkdir_p(local_dir)
         create_dir_structure
@@ -58,16 +50,21 @@ module Monster
 
       context "#start" do
 
+        before(:each) do
+          @wrapper = wrapper
+          @sync = sync(@wrapper)
+        end
+
         it "raise error if the local dir config is missing" do
           missing_local_dir = Monster::Remote::MissingLocalDirError
-          sync.local_dir = nil
-          lambda { sync.start }.should raise_error(missing_local_dir)
+          @sync.local_dir = nil
+          lambda { @sync.start }.should raise_error(missing_local_dir)
         end
 
         it "raise error if the remote dir config is missing" do
           missing_remote_dir = Monster::Remote::MissingRemoteDirError
-          sync.remote_dir = nil
-          lambda { sync.start }.should raise_error(missing_remote_dir)
+          @sync.remote_dir = nil
+          lambda { @sync.start }.should raise_error(missing_remote_dir)
         end
 
         it "raise error if asked to start without protocol wrapper" do
@@ -76,43 +73,53 @@ module Monster
         end
 
         it "call wrapper's #open" do
-          wrapper.should_receive(:open)
-          sync.start
+          @wrapper.should_receive(:open)
+          @sync.start
         end
 
         it "call wrapper's #open" do
-          wrapper.should_receive(:open).and_raise(StandardError)
+          @wrapper.should_receive(:open).and_raise(StandardError)
           no_connection = Monster::Remote::NoConnectionError
-          lambda{ sync.start }.should raise_error(no_connection)
+          lambda{ @sync.start }.should raise_error(no_connection)
         end
 
         context "calling wrapper's #open" do
-          before do
-            wrapper.stub(:open) { |bloco| bloco && bloco.call(wrapper) }
+
+          before(:each) do
+            @wrapper = wrapper
+            @sync = sync(@wrapper)
+            @wrapper.stub(:open) { |bloco| bloco && bloco.call(@wrapper) }
           end
 
-          it "call #copy_dir once per local dir" do
-            wrapper.should_receive(:create_dir).exactly(dir_structure.size)
-            sync.start
+          it "call #create_dir to the root remote path" do
+            @wrapper.should_receive(:create_dir).with(remote_dir).once
+            @sync.start
           end# once per dir
 
-          it "call #copy_dir once per local dir" do
-            remote_dir_path = File.join(remote_dir, dir_structure.keys.first)
-            wrapper.should_receive(:create_dir).with(remote_dir_path).once
-            sync.start
+          it "call #create_dir once per local dir" do
+            @wrapper.should_receive(:create_dir).exactly(dir_structure.size+1)
+            @sync.start
           end# once per dir
+
+          it "call #copy_file once per file in dir" do
+            total_files = dir_structure.inject(0) { |sum, pair| sum + pair[1].size }
+            @wrapper.should_receive(:copy_file).exactly(total_files)
+            @sync.start
+          end
         end# #open
       end# #start
 
       describe "turns verbose if a object which responds_to? :puts is passed" do
 
-        before do
-          sync.verbose = verbose
+        before(:each) do
+          @wrapper = wrapper
+          @sync = sync(@wrapper)
+          @sync.verbose = verbose
         end
 
         it "calls #puts on the output object" do
           verbose.should_receive(:puts).with("syncing from: #{local_dir} to: #{remote_dir}")
-          sync.start
+          @sync.start
         end
 
       end # verbose

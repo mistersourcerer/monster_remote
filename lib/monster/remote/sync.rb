@@ -18,23 +18,37 @@ module Monster
 
         open(wrapper) do |wrapper|
           out("connection openned, using: #{wrapper}")
-          Dir.entries(local_dir).each do |entry|
-            copy_to_remote(wrapper, entry)
-          end
+          out("creating root dir (#{remote_dir})")
+          wrapper.create_dir(remote_dir)
+          copy_to_remote(wrapper, local_dir)
         end
       end
 
       private
-      def copy_to_remote(wrapper, entry)
-        item = File.join(local_dir, entry)
-        remote_item = File.join(remote_dir, entry)
-        if File.directory?(item)
-          out("creating remote dir #{remote_item}")
-          wrapper.create_dir(remote_item)
-          Dir.entries(item).each do |dir|
-            puts ":::::::::"
-            puts File.join(item, dir)
-            copy_to_remote(wrapper, File.join(item, dir))
+      def copy_to_remote(wrapper, entry, path=nil)
+        if !path && File.directory?(entry)
+          Dir.entries(entry).each do |dir|
+            copy_to_remote(wrapper, dir, "/")
+          end
+        end
+
+        if path && (entry != "." && entry != "..")
+          entry_path = File.join(path, entry)
+          from = File.join(local_dir, entry_path)
+          to = File.join(remote_dir, entry_path)
+
+          if File.directory?(from)
+            out("creating dir #{to}")
+            wrapper.create_dir(to)
+            out("diggin into #{from}")
+            Dir.entries(from).each do |dir|
+              if dir != "." && dir != ".."
+                copy_to_remote(wrapper, dir, entry_path)
+              end
+            end
+          else
+            out("coping file to #{to}")
+            wrapper.copy_file(from, to)
           end
         end
       end
