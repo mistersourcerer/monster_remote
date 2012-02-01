@@ -90,6 +90,13 @@ module Monster
 
       end # verbose
 
+      describe "with NetFTP wrapper" do
+
+        it "replicate a local dir structure to remote" do
+          pending
+        end
+      end
+
       after do
         FileUtils.rm_rf(spec_tmp)
       end
