@@ -74,20 +74,24 @@ module Monster
 
           end# yielding the block
 
-          context "ftp connection" do
+          context "uses a ftp connection" do
+
             def ftp_cleanup
               ftp = Net::FTP.new
               ftp.connect("localhost")
               ftp.login("tests", "t3st3")
               list = ftp.list
+
               dir_exists = list.select{ |item| item =~ /.* opalele$/ }.size > 0
               if dir_exists
                 ftp.rmdir("opalele")
               end
+
               file_exists = list.select{ |item| item =~ /.* zufa$/ }.size > 0
               if file_exists
                 ftp.delete("zufa")
               end
+
               ftp.close
             end
 
