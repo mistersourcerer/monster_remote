@@ -3,7 +3,6 @@ module Monster
 
     describe Sync do
 
-
       let(:dir_structure) {
         {
           "site" => ["xpto.txt"],
