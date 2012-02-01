@@ -68,7 +68,7 @@ module Monster
         begin
           wrapper.open &block
         rescue Exception => e
-          raise NoConnectionError, e
+          raise NoConnectionError, e, caller
         end
       end
 
