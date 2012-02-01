@@ -6,6 +6,22 @@ module Monster
 
       class NetFTPWrapperPermissionDenied < Exception; end
 
+      class NetFTPHandler
+
+        def initialize(ftp)
+          @ftp = ftp
+        end
+
+        def create_dir(dir)
+          @ftp.mkdir(dir)
+        end
+
+        def copy_file(from, to)
+          @ftp.putbinaryfile(from, to)
+        end
+
+      end
+
       class NetFTP
         attr_writer :driver
 
@@ -17,7 +33,7 @@ module Monster
           ftp = @driver.new
           ftp.connect(host, port)
           ftp.login(user, password)
-          block.call(self, ftp) if block
+          block.call(NetFTPHandler.new(ftp), ftp) if block
           ftp.close
         end
       end# NetFTP
