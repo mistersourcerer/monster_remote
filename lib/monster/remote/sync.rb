@@ -23,7 +23,7 @@ module Monster
       end
 
       private
-      def create_dir(wrapper, remote_dir_path, local_dir_path, entry_path)
+      def create_dir(wrapper, local_dir_path, remote_dir_path, entry_path)
         out("creating dir #{remote_dir_path}")
         wrapper.create_dir(remote_dir_path)
         out("diggin into #{local_dir_path}")
@@ -46,7 +46,7 @@ module Monster
         remote_path = File.join(remote_dir, entry_path).gsub(/\.*\/$/, "")
 
         if File.directory?(local_path)
-          create_dir(wrapper, remote_path, local_path, entry_path)
+          create_dir(wrapper, local_path, remote_path, entry_path)
         else
           copy_file(wrapper, local_path, remote_path)
         end

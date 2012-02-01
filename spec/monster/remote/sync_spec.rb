@@ -46,14 +46,11 @@ module Monster
       before do
         FileUtils.mkdir_p(local_dir)
         create_dir_structure
+        @wrapper = wrapper
+        @sync = sync(@wrapper)
       end
 
       context "#start" do
-
-        before(:each) do
-          @wrapper = wrapper
-          @sync = sync(@wrapper)
-        end
 
         it "raise error if the local dir config is missing" do
           missing_local_dir = Monster::Remote::MissingLocalDirError
@@ -72,12 +69,12 @@ module Monster
           lambda { Sync.new(nil).start }.should raise_error(missing_wrapper)
         end
 
-        it "call wrapper's #open" do
+        it "call wrapper's #open when #start" do
           @wrapper.should_receive(:open)
           @sync.start
         end
 
-        it "call wrapper's #open" do
+        it "raise NoConnectionError when can't #open connection" do
           @wrapper.should_receive(:open).and_raise(StandardError)
           no_connection = Monster::Remote::NoConnectionError
           lambda{ @sync.start }.should raise_error(no_connection)
@@ -85,9 +82,7 @@ module Monster
 
         context "calling wrapper's #open" do
 
-          before(:each) do
-            @wrapper = wrapper
-            @sync = sync(@wrapper)
+          before do
             @wrapper.stub(:open) { |bloco| bloco && bloco.call(@wrapper) }
           end
 
@@ -111,9 +106,7 @@ module Monster
 
       describe "turns verbose if a object which responds_to? :puts is passed" do
 
-        before(:each) do
-          @wrapper = wrapper
-          @sync = sync(@wrapper)
+        before do
           @sync.verbose = verbose
         end
 
