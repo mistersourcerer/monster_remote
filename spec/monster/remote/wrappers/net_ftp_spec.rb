@@ -44,6 +44,21 @@ module Monster
           wrapper.open(host, user, password, port)
         end
 
+        context "#open" do
+
+          it "yields a given block" do
+            opalhes = 0
+            wrapper.open(host, user, password, port) { opalhes = 1 }
+            opalhes.should == 1
+          end
+
+          it "yields a given block passing the con as argument" do
+            internal_con = nil
+            wrapper.open(host, user, password, port) {|con| internal_con = con }
+            internal_con.should be_equal(con)
+          end
+        end
+
         after do
           FileUtils.rm_rf(spec_tmp)
         end

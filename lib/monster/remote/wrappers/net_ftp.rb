@@ -13,10 +13,11 @@ module Monster
           @driver = driver
         end
 
-        def open(host, user, password, port)
+        def open(host, user, password, port, &block)
           ftp = @driver.new
           ftp.connect(host, port)
           ftp.login(user, password)
+          block.call(ftp) if block
           ftp.close
         end
       end# NetFTP
