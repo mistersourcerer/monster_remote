@@ -3,33 +3,7 @@ module Monster
 
     describe Sync do
 
-      let(:dir_structure) {
-        {
-          "site" => ["xpto.txt"],
-          "site/images" => ["img1", "img2", "img3"],
-          "site/borba" => ["file1", "file2"],
-          "site/borba/subdir" => ["entaro", "adum", "toredas"],
-          "site/borba/subdir/test" => ["go1", "go2", "go3"]
-        }
-      }
-
-      let(:local_dir) { File.join(spec_tmp, "_ftp_") }
-
-      let(:remote_dir) { File.join("tmp", "_ftp_") }
-
       let(:verbose) { double("some object with #puts").as_null_object }
-
-      def create_dir_structure
-        dir_structure.each do |dir, files|
-          dir = File.join(local_dir, dir)
-          FileUtils.mkdir_p(dir)
-          files.each do |file|
-            File.open(File.join(dir, file), "w") do |f|
-              f.write(file)
-            end
-          end
-        end
-      end
 
       def wrapper
         double("wrapper contract").as_null_object
