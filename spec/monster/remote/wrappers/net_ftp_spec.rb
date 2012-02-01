@@ -52,9 +52,15 @@ module Monster
             opalhes.should == 1
           end
 
-          it "yields a given block passing the con as argument" do
+          it "yields a given block passing the wrapper as argument" do
+            internal_wrapper = nil
+            wrapper.open(host, user, password, port) {|wrapper| internal_wrapper = wrapper }
+            internal_wrapper.should be_equal(wrapper)
+          end
+
+          it "yields a given block passing the con as second argument" do
             internal_con = nil
-            wrapper.open(host, user, password, port) {|con| internal_con = con }
+            wrapper.open(host, user, password, port) {|first, con| internal_con = con }
             internal_con.should be_equal(con)
           end
         end

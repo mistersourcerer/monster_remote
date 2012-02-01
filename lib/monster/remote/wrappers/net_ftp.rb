@@ -17,7 +17,7 @@ module Monster
           ftp = @driver.new
           ftp.connect(host, port)
           ftp.login(user, password)
-          block.call(ftp) if block
+          block.call(self, ftp) if block
           ftp.close
         end
       end# NetFTP
