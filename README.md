@@ -110,19 +110,19 @@ end
 #Protocol Wrappers
 A wrapper is an object with the following methods:
 
- * ::new=(driver=Net::FTP)
+ * `::new=(driver=Net::FTP)`
     - the class from the real connection objects will be generated
- * #open(host=nil, user=nil, password=nil, port=nil)
+ * `#open(host=nil, user=nil, password=nil, port=nil)`
     - called when the synchrony starts
     - if a block is given, it will be yielded and two arguments will be
       passed to the block:
-        - an object that responds_to? :create_dir, and responds_to?
-          :copy_file. This object has an internal reference to the real
+        - an object that `responds_to? :create_dir`, and `responds_to?
+          :copy_file`. This object has an internal reference to the real
           connection
-           - #create_dir(dir) - creates a dir on the remote path
-           - #copy_file(from, to) - copies a file to the remote location
+           - `#create_dir(dir)` - creates a dir on the remote path
+           - `#copy_file(from, to)` - copies a file to the remote location
         - the real connection object (you can ignore the second argument if you want)
     - this method close the real connection before returns
 
-Internally a wrapper will use a real "thing" (like the default Net::FTP)
+Internally a wrapper will use a real "thing" (like the default `Net::FTP`)
 to replicate the local dir structure to the remote dir.
