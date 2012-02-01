@@ -4,51 +4,45 @@ module Monster
 
       describe NetFTP, "copy some local directory, to the remote host" do
 
-        let(:dir_structure) do
-          {
-            "site" => ["xpto.txt"],
-            "site/images" => ["img1", "img2", "img3"],
-            "site/borba" => ["file1", "file2"],
-            "site/borba/subdir" => ["entaro", "adum", "toredas"],
-            "site/borba/subdir/test" => ["go1", "go2", "go3"]
-          }
-        end
-        let(:local_dir) { File.join(spec_tmp, "_ftp_") }
-        let(:wrapper) { NetFTP.new(local_dir) }
+        let(:host) { "host" }
+        let(:user) { "user" }
+        let(:password) { "pass" }
+        let(:port) { "port" }
 
-        def create_dir_structure
-          dir_structure.each do |dir, files|
-            dir = File.join(local_dir, dir)
-            FileUtils.mkdir_p(dir)
-            files.each do |file|
-              File.open(File.join(dir, file), "w") do |f|
-                f.write(file)
-              end
-            end
-          end
-        end
+        let(:con) { double("Net::FTP::con mock").as_null_object }
+
+        let(:driver) {
+          d = double("Net::FTP mock").as_null_object
+          d.stub(:new).and_return(con)
+          d
+        }
+
+        let(:wrapper) { NetFTP.new(driver) }
 
         before do
           FileUtils.mkdir_p(local_dir)
           create_dir_structure
         end
 
-        context "#sync" do
+        it "create a Net::FTP object" do
+          driver.should_receive(:new).once
+          wrapper.open(host, user, password, port)
+        end
 
-          it "raise error if no local dir is configured" do
-            #lambda { NetFTP.new.sync }.should raise_error(Monster::Remote::MissingLocalDirError)
-          end
+        it "connect to the right host and port" do
+          con.should_receive(:connect).with(host, port).once
+          wrapper.open(host, user, password, port)
+        end
 
-          it "calls provider #open" do
-          end
-        end# #sync
+        it "authenticate on server" do
+          con.should_receive(:login).with(user, password).once
+          wrapper.open(host, user, password, port)
+        end
 
-        context "syncing without configure the local dir" do
-
-          it "#sync" do
-
-          end
-        end# empty local dir
+        it "close connection" do
+          con.should_receive(:close).once
+          wrapper.open(host, user, password, port)
+        end
 
         after do
           FileUtils.rm_rf(spec_tmp)

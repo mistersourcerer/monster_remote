@@ -2,18 +2,23 @@ require 'net/ftp'
 
 module Monster
   module Remote
-
-    class MissingLocalDirError < StandardError; end
-
     module Wrappers
 
-      class MonsterRemoteNetFTPWrapper < StandardError; end
-      class NetFTPPermissionDenied < MonsterRemoteNetFTPWrapper; end
+      class NetFTPWrapperPermissionDenied < Exception; end
 
       class NetFTP
+        attr_writer :driver
 
-        def sync
-        end#sync
+        def initialize(driver=Net::FTP)
+          @driver = driver
+        end
+
+        def open(host, user, password, port)
+          ftp = @driver.new
+          ftp.connect(host, port)
+          ftp.login(user, password)
+          ftp.close
+        end
       end# NetFTP
 
       class NetFTPOld
