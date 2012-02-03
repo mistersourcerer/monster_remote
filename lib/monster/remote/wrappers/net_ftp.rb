@@ -83,7 +83,7 @@ module Monster
         def create_dir_if_not_exists(dir)
           is_new_dir = true
           begin
-            is_new_dir = @ftp.nlst(dir)
+            is_new_dir = @ftp.nlst(dir).empty?
           rescue Net::FTPTempError => e
             is_unexpected_error = !e.message.include?("450")
             if is_unexpected_error
