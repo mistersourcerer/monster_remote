@@ -4,7 +4,23 @@ module Monster
   module Remote
     module Wrappers
 
-      class NetFTPWrapperPermissionDenied < Exception; end
+      class NetFTP
+
+        def initialize(driver=Net::FTP)
+          @driver = driver
+        end
+
+        def open(host, user, password, port, &block)
+          ftp = @driver.new
+          ftp.connect(host, port)
+          ftp.login(user, password)
+          if block
+            block.call(NetFTPHandler.new(ftp), ftp)
+          end
+          ftp.close
+        end
+
+      end# NetFTP
 
       class NetFTPHandler
 
@@ -42,30 +58,6 @@ module Monster
           @ftp.chdir(pwd)
         end
 
-        def empty_and_remove_dir(dir)
-          pwd = @ftp.pwd
-
-          @ftp.chdir(dir)
-          res = @ftp.list; res.shift
-
-          res.each do |item|
-            dir = (matcher = /(^d.*)(\s.*)/i.match(item)) && matcher[2].strip
-            if dir
-              remove_dir(dir)
-            end
-
-            file = (matcher = /(^-.*)(\s.*)/i.match(item)) && matcher[2].strip
-            if file
-              remove_file(file)
-            end
-          end
-          @ftp.chdir(pwd)
-
-          if(@ftp.nlst.include?(dir))
-            @ftp.rmdir(dir)
-          end
-        end
-
         def copy_file(from, to)
           file = to
           dirs = dirs_in_path(to)
@@ -87,6 +79,33 @@ module Monster
 
         private
 
+        def empty_dir(dir)
+          pwd = @ftp.pwd
+
+          @ftp.chdir(dir)
+          res = @ftp.list; res.shift
+
+          res.each do |item|
+            dir = (matcher = /(^d.*)(\s.*)/i.match(item)) && matcher[2].strip
+            if dir
+              remove_dir(dir)
+            end
+
+            file = (matcher = /(^-.*)(\s.*)/i.match(item)) && matcher[2].strip
+            if file
+              remove_file(file)
+            end
+          end
+          @ftp.chdir(pwd)
+        end
+
+        def empty_and_remove_dir(dir)
+          empty_dir(dir)
+          if(@ftp.nlst.include?(dir))
+            @ftp.rmdir(dir)
+          end
+        end
+
         def create_and_chdir(dir)
           create_dir_if_not_exists(dir)
           @ftp.chdir(dir)
@@ -96,7 +115,7 @@ module Monster
           dirs_in_path = dir.gsub(/\.*\/$/, "").split("/")
         end
 
-        def create_dir_if_not_exists(dir)
+        def is_new_dir?(dir)
           is_new_dir = true
           begin
             is_new_dir = @ftp.nlst(dir).empty?
@@ -105,108 +124,18 @@ module Monster
             if is_unexpected_error
               raise(e, e.message, caller)
             end
-
             is_new_dir = !e.message.include?("No files found")
           end
+          return is_new_dir
+        end
 
-          if is_new_dir
+        def create_dir_if_not_exists(dir)
+          if is_new_dir?(dir)
             @ftp.mkdir(dir)
           end
         end
+      end# NetFTPHandler
 
-      end
-
-      class NetFTP
-        def initialize(driver=Net::FTP)
-          @driver = driver
-        end
-
-        def open(host, user, password, port, &block)
-          ftp = @driver.new
-          ftp.connect(host, port)
-          ftp.login(user, password)
-          if block
-            block.call(NetFTPHandler.new(ftp), ftp)
-          end
-          ftp.close
-        end
-      end# NetFTP
-
-      class NetFTPOld
-
-        def initialize(provider = Net::FTP)
-          @provider = provider
-          @filters = []
-          @nslt = {}
-        end
-
-        def open(host, port, user, pass)
-          @provider.open(host) do |ftp|
-            @ftp = ftp
-            @ftp.connect(host, port)
-            @ftp.login(user, pass)
-            yield(self, ftp)
-          end
-        end
-
-        def copy_dir(local_dir, remote_dir)
-          create_if_not_exists(remote_dir)
-          local_structure = filter(Dir.entries(local_dir))
-          local_structure.each do |entry|
-            local_path = File.join(local_dir, entry)
-            remote_path = File.join(remote_dir, entry)
-            copy(local_path, remote_path)
-          end
-        end
-
-        def add_filter(filter)
-          @filters ||= []
-          @filters << filter
-        end
-
-        private
-        def copy(from, to)
-          if(Dir.exists?(from))
-            copy_dir(from, to)
-          else
-            copy_file(from, to)
-          end
-        end
-
-        def copy_file(from, to)
-          @ftp.putbinaryfile(from, to)
-        end
-
-        def filter(dir_structure)
-          if(@filters.empty?)
-            @filters << ContentNameBasedFilter.new.reject([".", ".."])
-          end
-
-          allowed = dir_structure
-          @filters.each do |f|
-            allowed = f.filter(allowed)
-          end
-          allowed
-        end
-
-        def create_remote_dir(dir)
-          dirname = File.dirname(dir)
-          dir_content = @nslt[dirname] || @ftp.nlst(dirname)
-          dir_exists = dir_content.include? dir
-          @ftp.mkdir(dir) unless dir_exists
-        end
-
-        def create_if_not_exists(dir)
-          begin
-            create_remote_dir(dir)
-          rescue Net::FTPPermError => e
-            denied = NetFTPPermissionDenied.new(e)
-            raise denied, e.message
-          end
-        end
-
-      end # NetFTP
-
-    end
-  end
-end
+    end# Wrappers
+  end# Remote
+end# Monster
