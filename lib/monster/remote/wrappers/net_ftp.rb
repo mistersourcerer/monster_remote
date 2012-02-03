@@ -12,8 +12,57 @@ module Monster
           @ftp = ftp
         end
 
-        def create_dir(dir)
+        def create_or_override_dir(dir)
+          begin
+            dir_exists = @ftp.nlst(dir)
+
+            if dir_exists
+              res = @ftp.list(dir)
+              res.shift
+              res.each do |item|
+                dir = (matcher = /(^d.*)(\s.*)/i.match(item)) && matcher[2].strip
+                file = (matcher = /(^d.*)(\s.*)/i.match(item)) && matcher[2].strip
+                if dir
+                  @ftp.rmdir(dir)
+                end
+                if file
+                  @ftp.delete(file)
+                end
+              end
+              @ftp.rmdir(dir)
+            end
+          rescue Net::FTPTempError => e
+            msg = e.message
+            is_empty_dir = msg.include?("450") && msg.include?("No files found")
+            is_unexpected_error = !msg.include?("450")
+            if is_empty_dir
+              @ftp.rmdir(dir)
+            end
+
+            if is_unexpected_error
+              raise(e, e.message, caller)
+            end
+          end
+
           @ftp.mkdir(dir)
+        end
+
+        def create_dir(dir, path = nil)
+          is_root_dir = !path
+          if is_root_dir
+            dirs_in_path = dir.gsub(/\.*\/$/, "").split("/")
+
+            create_or_override_dir(dirs_in_path[0])
+            if dirs_in_path.size > 1
+              path = dirs_in_path.shift
+              dirs_in_path.each do |dir|
+                create_dir(dir, path)
+              end
+            end
+          end
+
+          dir_path = path ? File.join(path, dir) : dir
+          create_or_override_dir(dir_path)
         end
 
         def copy_file(from, to)

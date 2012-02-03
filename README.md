@@ -119,8 +119,10 @@ A wrapper is an object with the following methods:
         - an object that `responds_to? :create_dir`, and `responds_to?
           :copy_file`. This object has an internal reference to the real
           connection
-           - `#create_dir(dir)` - creates a dir on the remote path
+           - `#create_dir(dir)` - creates a remote dir
+           - `#remove_dir(dir)` - removes a remote dir
            - `#copy_file(from, to)` - copies a file to the remote location
+           - `#remove_file(file)` - removes a remote file
         - the real connection object (you can ignore the second argument if you want)
     - this method close the real connection before returns
 

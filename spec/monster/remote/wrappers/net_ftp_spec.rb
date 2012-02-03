@@ -75,7 +75,6 @@ module Monster
           end# yielding the block
 
           context "uses a ftp connection" do
-
             def ftp_cleanup
               ftp = Net::FTP.new
               ftp.connect("localhost")
@@ -95,30 +94,80 @@ module Monster
               ftp.close
             end
 
+            let(:ftp_root) { "/Users/test" }
+
             before(:each) do
               ftp_cleanup
             end
 
-            let(:ftp_root) { "/Users/test" }
+            context "handling directories" do
 
-            it "creates a remote dir" do
-              ftp = NetFTP.new
-              ftp.open("localhost", "tests", "t3st3", 21) do |remote|
-                remote.create_dir("opalele")
+              it "creates a remote dir" do
+                ftp = NetFTP.new
+                ftp.open("localhost", "tests", "t3st3", 21) do |remote|
+                  puts "pimba"
+                  remote.create_dir("opalele")
+                end
+                File.directory?(File.join(ftp_root, "opalele")).should be_true
               end
-              File.directory?(File.join(ftp_root, "opalele")).should be_true
+
+              it "creates a dir recursivelly" do
+                ftp = NetFTP.new
+                ftp.open("localhost", "tests", "t3st3", 21) do |remote|
+                  remote.create_dir("zaz/zumzum/goal/")
+                end
+                File.directory?(File.join(ftp_root, "zaz/zumzum/goal")).should be_true
+              end
+
+              it "removes a dir" do
+                ftp = NetFTP.new
+                ftp.open("localhost", "tests", "t3st3", 21) do |remote|
+                  remote.create_dir("opalele")
+                  remote.remove_dir("opalele")
+                end
+                File.directory?(File.join(ftp_root, "opalele")).should be_false
+              end
+
+              it "removes a dir recursively (a non empty dir)" do
+                ftp = NetFTP.new
+                ftp.open("localhost", "tests", "t3st3", 21) do |remote|
+                  remote.create_dir("zaz/zumzum/goal")
+                  remote.remove_dir("zaz/zumzum/goal")
+                end
+                File.directory?(File.join(ftp_root, "zaz/zumzum/goal")).should be_false
+              end
+
+              it "overrides an existent dir" do
+                ftp = NetFTP.new
+                ftp.open("localhost", "tests", "t3st3", 21) do |remote|
+                  lambda {
+                    remote.create_dir("opalele")
+                    remote.create_dir("opalele")
+                  }.should_not raise_error
+                end
+              end
+
+            after do
+              ftp_cleanup
+            end
+
             end
 
             context "copying file" do
+              def file_content
+                "ula ula ula baboola"
+              end
+
+              def create_tmp_file
+                file = File.join(local_dir, "omg_filet.txt")
+                File.open(file, "w") { |f| f.write file_content }
+                file
+              end
 
               before do
-                file = File.join(local_dir, "omg_filet.txt")
-                @content = "ula ula ula baboola"
-                File.open(file, "w") { |f| f.write @content }
-
                 ftp = NetFTP.new
                 ftp.open("localhost", "tests", "t3st3", 21) do |remote|
-                  remote.copy_file(file, "zufa")
+                  remote.copy_file(create_tmp_file, "zufa")
                 end
               end
 
@@ -127,7 +176,26 @@ module Monster
               end
 
               it "copy with right content" do
-                IO.read(File.join(ftp_root, "zufa")).should == @content
+                IO.read(File.join(ftp_root, "zufa")).should == file_content
+              end
+
+              it "removes a file" do
+                ftp = NetFTP.new
+                ftp.open("localhost", "tests", "t3st3", 21) do |remote|
+                  remote.copy_file(create_tmp_file, "zufa")
+                  remote.remove_file("zufa")
+                end
+                File.exists?(File.join(ftp_root, "zufa")).should be_false
+              end
+
+              it "overrides existent file" do
+                ftp = NetFTP.new
+                ftp.open("localhost", "tests", "t3st3", 21) do |remote|
+                  lambda {
+                    remote.copy_file(create_tmp_file, "zufa")
+                    remote.copy_file(create_tmp_file, "zufa")
+                  }.should_not raise_error
+                end
               end
 
             end# copying file
