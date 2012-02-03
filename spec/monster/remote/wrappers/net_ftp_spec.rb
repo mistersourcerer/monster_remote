@@ -83,7 +83,9 @@ module Monster
 
               dir_exists = list.select{ |item| item =~ /.* opalele$/ }.size > 0
               if dir_exists
-                ftp.rmdir("opalele")
+                NetFTP.new.open("localhost", "tests", "t3st3", 21) do |remote|
+                  remote.remove_dir("opalele")
+                end
               end
 
               file_exists = list.select{ |item| item =~ /.* zufa$/ }.size > 0
@@ -103,25 +105,31 @@ module Monster
             context "handling directories" do
 
               it "creates a remote dir" do
-                ftp = NetFTP.new
-                ftp.open("localhost", "tests", "t3st3", 21) do |remote|
-                  puts "pimba"
+                NetFTP.new.open("localhost", "tests", "t3st3", 21) do |remote|
                   remote.create_dir("opalele")
                 end
                 File.directory?(File.join(ftp_root, "opalele")).should be_true
               end
 
               it "creates a dir recursivelly" do
-                ftp = NetFTP.new
-                ftp.open("localhost", "tests", "t3st3", 21) do |remote|
+                NetFTP.new.open("localhost", "tests", "t3st3", 21) do |remote|
                   remote.create_dir("zaz/zumzum/goal/")
                 end
                 File.directory?(File.join(ftp_root, "zaz/zumzum/goal")).should be_true
               end
 
+              it "copies a file recursivelly" do
+                file = File.join(local_dir, "amulek")
+                File.open(file, "w") { |f| f.write("go!go!") }
+                NetFTP.new.open("localhost", "tests", "t3st3", 21) do |remote|
+                  remote.create_dir("opalele")
+                  remote.copy_file(file, "opalele/amulek")
+                  File.exists?(File.join(ftp_root, "opalele/amulek")).should be_true
+                end
+              end
+
               it "removes a dir" do
-                ftp = NetFTP.new
-                ftp.open("localhost", "tests", "t3st3", 21) do |remote|
+                NetFTP.new.open("localhost", "tests", "t3st3", 21) do |remote|
                   remote.create_dir("opalele")
                   remote.remove_dir("opalele")
                 end
@@ -129,8 +137,7 @@ module Monster
               end
 
               it "removes a dir recursively (a non empty dir)" do
-                ftp = NetFTP.new
-                ftp.open("localhost", "tests", "t3st3", 21) do |remote|
+                NetFTP.new.open("localhost", "tests", "t3st3", 21) do |remote|
                   remote.create_dir("zaz/zumzum/goal")
                   remote.remove_dir("zaz/zumzum/goal")
                 end
@@ -138,8 +145,7 @@ module Monster
               end
 
               it "overrides an existent dir" do
-                ftp = NetFTP.new
-                ftp.open("localhost", "tests", "t3st3", 21) do |remote|
+                NetFTP.new.open("localhost", "tests", "t3st3", 21) do |remote|
                   lambda {
                     remote.create_dir("opalele")
                     remote.create_dir("opalele")
@@ -165,8 +171,7 @@ module Monster
               end
 
               before do
-                ftp = NetFTP.new
-                ftp.open("localhost", "tests", "t3st3", 21) do |remote|
+                NetFTP.new.open("localhost", "tests", "t3st3", 21) do |remote|
                   remote.copy_file(create_tmp_file, "zufa")
                 end
               end
@@ -180,8 +185,7 @@ module Monster
               end
 
               it "removes a file" do
-                ftp = NetFTP.new
-                ftp.open("localhost", "tests", "t3st3", 21) do |remote|
+                NetFTP.new.open("localhost", "tests", "t3st3", 21) do |remote|
                   remote.copy_file(create_tmp_file, "zufa")
                   remote.remove_file("zufa")
                 end
@@ -189,8 +193,7 @@ module Monster
               end
 
               it "overrides existent file" do
-                ftp = NetFTP.new
-                ftp.open("localhost", "tests", "t3st3", 21) do |remote|
+                NetFTP.new.open("localhost", "tests", "t3st3", 21) do |remote|
                   lambda {
                     remote.copy_file(create_tmp_file, "zufa")
                     remote.copy_file(create_tmp_file, "zufa")

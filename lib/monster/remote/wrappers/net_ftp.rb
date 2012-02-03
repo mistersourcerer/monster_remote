@@ -12,68 +12,95 @@ module Monster
           @ftp = ftp
         end
 
-        def create_or_override_dir(dir)
-          begin
-            dir_exists = @ftp.nlst(dir)
+        def create_dir(dir)
+          pwd = @ftp.pwd
 
-            if dir_exists
-              res = @ftp.list(dir)
-              res.shift
-              res.each do |item|
-                dir = (matcher = /(^d.*)(\s.*)/i.match(item)) && matcher[2].strip
-                file = (matcher = /(^d.*)(\s.*)/i.match(item)) && matcher[2].strip
-                if dir
-                  @ftp.rmdir(dir)
-                end
-                if file
-                  @ftp.delete(file)
-                end
-              end
-              @ftp.rmdir(dir)
-            end
-          rescue Net::FTPTempError => e
-            msg = e.message
-            is_empty_dir = msg.include?("450") && msg.include?("No files found")
-            is_unexpected_error = !msg.include?("450")
-            if is_empty_dir
-              @ftp.rmdir(dir)
-            end
+          dirs_in_path = dir.gsub(/\.*\/$/, "").split("/")
+          root_dir_name = dirs_in_path.shift
 
-            if is_unexpected_error
-              raise(e, e.message, caller)
+          create_and_chdir(root_dir_name)
+
+          if dirs_in_path.size > 0
+            dirs_in_path.each do |dir|
+              create_and_chdir(dir)
             end
           end
 
-          @ftp.mkdir(dir)
+          @ftp.chdir(pwd)
         end
 
-        def create_dir(dir, path = nil)
-          is_root_dir = !path
-          if is_root_dir
-            dirs_in_path = dir.gsub(/\.*\/$/, "").split("/")
+        def remove_dir(dir)
+          pwd = @ftp.pwd
+          @ftp.chdir(dir)
+          res = @ftp.list; res.shift
 
-            create_or_override_dir(dirs_in_path[0])
-            if dirs_in_path.size > 1
-              path = dirs_in_path.shift
-              dirs_in_path.each do |dir|
-                create_dir(dir, path)
-              end
+          res.each do |item|
+            dir = (matcher = /(^d.*)(\s.*)/i.match(item)) && matcher[2].strip
+            if dir
+              #@ftp.rmdir(dir)
+              remove_dir(dir)
+            end
+
+            file = (matcher = /(^-.*)(\s.*)/i.match(item)) && matcher[2].strip
+            if file
+              remove_file(file)
             end
           end
-
-          dir_path = path ? File.join(path, dir) : dir
-          create_or_override_dir(dir_path)
+          @ftp.chdir(pwd)
+          @ftp.rmdir(dir)
         end
 
         def copy_file(from, to)
-          @ftp.putbinaryfile(from, to)
+          file = to
+          dirs = dirs_in_path(to)
+          if dirs.size > 1
+            file = dirs.pop
+            create_dir(dirs.join("/"))
+            pwd = @ftp.pwd
+            dirs.each { |dir| @ftp.chdir(dir) }
+            @ftp.putbinaryfile(from, file)
+            @ftp.chdir(pwd)
+          else
+            @ftp.putbinaryfile(from, to)
+          end
+        end
+
+        def remove_file(file)
+          @ftp.delete(file)
+        end
+
+        private
+
+        def create_and_chdir(dir)
+          create_dir_if_not_exists(dir)
+          @ftp.chdir(dir)
+        end
+
+        def dirs_in_path(dir)
+          dirs_in_path = dir.gsub(/\.*\/$/, "").split("/")
+        end
+
+        def create_dir_if_not_exists(dir)
+          is_new_dir = true
+          begin
+            is_new_dir = @ftp.nlst(dir)
+          rescue Net::FTPTempError => e
+            is_unexpected_error = !e.message.include?("450")
+            if is_unexpected_error
+              raise(e, e.message, caller)
+            end
+
+            is_new_dir = !e.message.include?("No files found")
+          end
+
+          if is_new_dir
+            @ftp.mkdir(dir)
+          end
         end
 
       end
 
       class NetFTP
-        attr_writer :driver
-
         def initialize(driver=Net::FTP)
           @driver = driver
         end
@@ -82,7 +109,9 @@ module Monster
           ftp = @driver.new
           ftp.connect(host, port)
           ftp.login(user, password)
-          block.call(NetFTPHandler.new(ftp), ftp) if block
+          if block
+            block.call(NetFTPHandler.new(ftp), ftp)
+          end
           ftp.close
         end
       end# NetFTP
