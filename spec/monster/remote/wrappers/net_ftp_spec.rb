@@ -142,6 +142,8 @@ module Monster
                   remote.remove_dir("zaz/zumzum/goal")
                 end
                 File.directory?(File.join(ftp_root, "zaz/zumzum/goal")).should be_false
+                File.directory?(File.join(ftp_root, "zaz/zumzum")).should be_false
+                File.directory?(File.join(ftp_root, "zaz")).should be_false
               end
 
               it "overrides an existent dir" do

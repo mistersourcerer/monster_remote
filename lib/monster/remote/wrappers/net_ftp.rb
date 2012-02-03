@@ -15,13 +15,13 @@ module Monster
         def create_dir(dir)
           pwd = @ftp.pwd
 
-          dirs_in_path = dir.gsub(/\.*\/$/, "").split("/")
-          root_dir_name = dirs_in_path.shift
+          dirs = dirs_in_path(dir)
+          root_dir_name = dirs.shift
 
           create_and_chdir(root_dir_name)
 
-          if dirs_in_path.size > 0
-            dirs_in_path.each do |dir|
+          if dirs.size > 0
+            dirs.each do |dir|
               create_and_chdir(dir)
             end
           end
@@ -31,13 +31,26 @@ module Monster
 
         def remove_dir(dir)
           pwd = @ftp.pwd
+          dirs = dirs_in_path(dir)
+          final_dir = dirs.pop
+          dirs.each { |dir| @ftp.chdir(dir) }
+          empty_and_remove_dir(final_dir)
+          while(final_dir = dirs.pop)
+            @ftp.chdir("..")
+            empty_and_remove_dir(final_dir)
+          end
+          @ftp.chdir(pwd)
+        end
+
+        def empty_and_remove_dir(dir)
+          pwd = @ftp.pwd
+
           @ftp.chdir(dir)
           res = @ftp.list; res.shift
 
           res.each do |item|
             dir = (matcher = /(^d.*)(\s.*)/i.match(item)) && matcher[2].strip
             if dir
-              #@ftp.rmdir(dir)
               remove_dir(dir)
             end
 
@@ -47,7 +60,10 @@ module Monster
             end
           end
           @ftp.chdir(pwd)
-          @ftp.rmdir(dir)
+
+          if(@ftp.nlst.include?(dir))
+            @ftp.rmdir(dir)
+          end
         end
 
         def copy_file(from, to)
