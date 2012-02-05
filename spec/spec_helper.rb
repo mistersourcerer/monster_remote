@@ -20,6 +20,18 @@ def remote_dir
   File.join("tmp", "_ftp_")
 end
 
+def ftp_root
+  "/Users/test"
+end
+
+def ftp_user
+  "tests"
+end
+
+def ftp_password
+  "t3st3"
+end
+
 def dir_structure
   {
     "site" => ["xpto.txt"],

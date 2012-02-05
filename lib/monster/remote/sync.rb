@@ -3,20 +3,28 @@ module Monster
 
     class Sync
 
-      attr_writer :verbose, :local_dir, :remote_dir
+      attr_writer :verbose, :host, :port
 
-      def initialize(wrapper)
+      def initialize(wrapper, local_dir=nil, remote_dir=nil, verbose=nil)
         @wrapper = wrapper
+        local_dir && @local_dir = local_dir
+        remote_dir && @remote_dir = remote_dir
+        verbose && @verbose = verbose
       end
 
-      def start
-        wrapper = @wrapper || raise(MissingProtocolWrapperError)
+      def start(user = nil, password = nil, host = "localhost", port = 21)
+        @host = host
+        @port = port
+        @user = user || ""
+        @password = password || ""
+
+        @wrapper || raise(MissingProtocolWrapperError)
         local_dir || raise(MissingLocalDirError)
         remote_dir || raise(MissingRemoteDirError)
 
         out("syncing from: #{local_dir} to: #{remote_dir}")
 
-        open(wrapper) do |wrapper|
+        open(@wrapper) do |wrapper|
           out("connection openned, using: #{wrapper}")
           copy_to_remote(wrapper, local_dir)
         end
@@ -39,6 +47,7 @@ module Monster
 
       def copy_to_remote(wrapper, entry, path=nil)
         is_dot_dir = entry =~ /^\.$|^\.\.$/
+        out("ignoring dir #{entry}")
         return if is_dot_dir
 
         entry_path = path ? File.join(path, entry) : ""
@@ -46,6 +55,7 @@ module Monster
         remote_path = File.join(remote_dir, entry_path).gsub(/\.*\/$/, "")
 
         if File.directory?(local_path)
+          out("copying #{local_path}")
           create_dir(wrapper, local_path, remote_path, entry_path)
         else
           copy_file(wrapper, local_path, remote_path)
@@ -66,8 +76,10 @@ module Monster
 
       def open(wrapper, &block)
         begin
-          wrapper.open &block
+          out("trying to connect using wrapper")
+          wrapper.open(@host, @user, @password, @port, &block)
         rescue Exception => e
+          out("connection failed, #{e.message}")
           raise NoConnectionError, e, caller
         end
       end

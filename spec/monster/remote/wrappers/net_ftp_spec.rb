@@ -96,8 +96,6 @@ module Monster
               ftp.close
             end
 
-            let(:ftp_root) { "/Users/test" }
-
             before(:each) do
               ftp_cleanup
             end

@@ -1,3 +1,5 @@
+require 'monster/remote/wrappers/net_ftp'
+
 module Monster
   module Remote
 
@@ -10,10 +12,7 @@ module Monster
       end
 
       def sync(wrapper)
-        s = Sync.new(wrapper)
-        s.local_dir = local_dir
-        s.remote_dir = remote_dir
-        s
+        Sync.new(wrapper, local_dir, remote_dir)
       end
 
       before do
@@ -27,14 +26,14 @@ module Monster
 
         it "raise error if the local dir config is missing" do
           missing_local_dir = Monster::Remote::MissingLocalDirError
-          @sync.local_dir = nil
-          lambda { @sync.start }.should raise_error(missing_local_dir)
+          sync = Sync.new(wrapper)
+          lambda { sync.start }.should raise_error(missing_local_dir)
         end
 
         it "raise error if the remote dir config is missing" do
           missing_remote_dir = Monster::Remote::MissingRemoteDirError
-          @sync.remote_dir = nil
-          lambda { @sync.start }.should raise_error(missing_remote_dir)
+          sync = Sync.new(wrapper, local_dir)
+          lambda { sync.start }.should raise_error(missing_remote_dir)
         end
 
         it "raise error if asked to start without protocol wrapper" do
@@ -56,23 +55,7 @@ module Monster
         context "calling wrapper's #open" do
 
           before do
-            @wrapper.stub(:open) { |bloco| bloco && bloco.call(@wrapper) }
-          end
-
-          it "call #create_dir to the root remote path" do
-            @wrapper.should_receive(:create_dir).with(remote_dir).once
-            @sync.start
-          end# once per dir
-
-          it "call #create_dir once per local dir" do
-            @wrapper.should_receive(:create_dir).exactly(dir_structure.size+1)
-            @sync.start
-          end# once per dir
-
-          it "call #copy_file once per file in dir" do
-            total_files = dir_structure.inject(0) { |sum, pair| sum + pair[1].size }
-            @wrapper.should_receive(:copy_file).exactly(total_files)
-            @sync.start
+            @wrapper.stub(:open) { |&bloco| bloco && bloco.call(@wrapper) }
           end
         end# #open
       end# #start
@@ -92,8 +75,26 @@ module Monster
 
       describe "with NetFTP wrapper" do
 
+        before { @ftp_dir = File.join(ftp_root, remote_dir) }
+
+        before(:each) do
+          sync = Sync.new(Wrappers::NetFTP.new, local_dir, remote_dir)
+          sync.start(ftp_user, ftp_password)
+        end
+
         it "replicate a local dir structure to remote" do
-          pending
+          dir_structure.each do |dir, content|
+            File.directory?(File.join(@ftp_dir, dir)).should be_true
+          end
+        end
+
+        it "create copies all local files on the dir structure" do
+          dir_structure.each do |dir, content|
+            content.each do |f|
+              file = File.join(File.join(@ftp_dir, dir), f)
+              File.exists?(file).should be_true
+            end
+          end
         end
       end
 
