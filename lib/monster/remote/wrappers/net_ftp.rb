@@ -59,11 +59,10 @@ module Monster
         end
 
         def copy_file(from, to)
-          file = to
-          dirs = dirs_in_path(to)
-          if dirs.size > 1
+          if (dirs = dirs_in_path(to)).size > 1
             file = dirs.pop
             create_dir(dirs.join("/"))
+
             pwd = @ftp.pwd
             dirs.each { |dir| @ftp.chdir(dir) }
             @ftp.putbinaryfile(from, file)
@@ -79,23 +78,26 @@ module Monster
 
         private
 
+        def entry_from_regex_on_path(regex, path)
+          (matcher = regex.match(path)) && matcher[2].strip
+        end
+
         def empty_dir(dir)
           pwd = @ftp.pwd
-
           @ftp.chdir(dir)
-          res = @ftp.list; res.shift
+          res = @ftp.list;
+          res.shift
 
           res.each do |item|
-            dir = (matcher = /(^d.*)(\s.*)/i.match(item)) && matcher[2].strip
-            if dir
+            if dir = entry_from_regex_on_path(/(^d.*)(\s.*)/i, item)
               remove_dir(dir)
             end
 
-            file = (matcher = /(^-.*)(\s.*)/i.match(item)) && matcher[2].strip
-            if file
+            if file = entry_from_regex_on_path(/(^-.*)(\s.*)/i, item)
               remove_file(file)
             end
           end
+
           @ftp.chdir(pwd)
         end
 
