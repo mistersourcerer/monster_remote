@@ -14,13 +14,20 @@ module Monster
         File.join(File.expand_path("../../../../", __FILE__), "bin/monster_remote")
       end
 
-      before :all do
-        @cli = CLI.new
+      before do
+        @out = double("out contract").as_null_object
+        @in = double("in contract").as_null_object
+        @cli = CLI.new(@out, @in)
       end
 
       it "-v returns the version" do
+        rescuing_exit { @cli.run(["-v"]) == Monster::Remote::VERSION }
+      end
+
+      it "-p calls #gets on the given 'input'" do
         rescuing_exit do
-          @cli.run(["-v"]) == Monster::Remote::VERSION
+          @in.should_receive(:gets)
+          @cli.run(["-p"])
         end
       end
 

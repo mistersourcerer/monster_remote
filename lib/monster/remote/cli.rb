@@ -24,6 +24,10 @@ module Monster
           opts.on "-v", "--version", "Show installed gem version" do
             options[:show_version] = true
           end
+
+          opts.on "-p", "--password", "The password connection" do
+            options[:password] = true
+          end
         end
 
         parser.parse!(args)
