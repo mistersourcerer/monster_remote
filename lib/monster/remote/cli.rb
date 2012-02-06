@@ -15,13 +15,21 @@ module Monster
         options = parse_options(args)
 
         show_version if options[:show_version]
-        wait_for_password if options[:password]
+        password = nil
+        if options[:password]
+          password = wait_for_password
+        end
 
         connection_wrapper = options[:wrapper] || Monster::Remote::Wrappers::NetFTP
         local_dir = options[:local_dir] || Dir.pwd
         remote_dir = options[:remote_dir] || File.basename(local_dir)
         out = options[:verbose] ? STDOUT : nil
+        host = options[:host] || "localhost"
+        port = options[:port] || 21
+        user = options[:user] || nil
+
         sync = @syncer.new(connection_wrapper, local_dir, remote_dir, out)
+        sync.start(user, password, host, port)
       end
 
       def show_version
@@ -30,7 +38,7 @@ module Monster
       end
 
       def wait_for_password
-        @password = @in.gets.strip
+        @in.gets.strip
       end
 
       private
@@ -47,6 +55,10 @@ module Monster
             options[:password] = true
           end
 
+          opts.on "-u", "--user USER", "User for connection" do |user|
+            options[:user] = user
+          end
+
           opts.on "--ftp", "Transfer with NetFTP wrapper" do
             options[:wrapper] = Monster::Remote::Wrappers::NetFTP
           end
@@ -61,6 +73,14 @@ module Monster
 
           opts.on "-r", "--remote-dir DIR_PATH", "Remote root dir" do |dir|
             options[:remote_dir] = dir
+          end
+
+          opts.on "-H", "--host HOST", "Server host" do |host|
+            options[:host] = host
+          end
+
+          opts.on "-P", "--port SERVER_PORT", "Server port" do |port|
+            options[:port] = port
           end
         end
 

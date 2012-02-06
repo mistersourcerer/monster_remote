@@ -20,9 +20,11 @@ module Monster
 
       before do
         @syncer = double("sync contract").as_null_object
+        @syncer.stub(:new).and_return(@syncer)
         @out = double("out contract").as_null_object
         @in = double("in contract").as_null_object
-        @in.stub(:gets).and_return("")
+        @password = "123"
+        @in.stub(:gets).and_return(@password)
 
         @cli = CLI.new(@syncer, @out, @in)
       end
@@ -90,6 +92,46 @@ module Monster
           @syncer.should_receive(:new).with(@wrapper, @current_dir, remote, nil)
           rescuing_exit do
             @cli.run(["-r", remote])
+          end
+        end
+
+        it "start sync with default configurations" do
+          @syncer.should_receive(:start).with(nil, nil, "localhost", 21)
+          rescuing_exit do
+            @cli.run
+          end
+        end
+
+        it "-H allow specify the server host" do
+          host = "borba"
+          @syncer.should_receive(:start).with(nil, nil, host, 21)
+          rescuing_exit do
+            @cli.run(["-H", host])
+          end
+        end
+
+        it "-P allow specify the host port" do
+          host = "borba"
+          port = "portalhes"
+          @syncer.should_receive(:start).with(nil, nil, host, port)
+          rescuing_exit do
+            @cli.run(["-H", host, "-P", port])
+          end
+        end
+
+        it "-u specify the user" do
+          user = "omg-my-user"
+          @syncer.should_receive(:start).with(user, nil, "localhost", 21)
+          rescuing_exit do
+            @cli.run(["-u", user])
+          end
+        end
+
+        it "-p specify the password" do
+          user = "omg-my-user"
+          @syncer.should_receive(:start).with(user, @password, "localhost", 21)
+          rescuing_exit do
+            @cli.run(["-u", user, "-p"])
           end
         end
 
