@@ -60,10 +60,17 @@ module Monster
           end
         end
 
+        it "uses NetFTP as default wrapper" do
+          @syncer.should_receive(:new).with(@wrapper, @current_dir, @dirname, nil)
+          rescuing_exit do
+            @cli.run(["-p"])
+          end
+        end
+
         it "--verbose turn on the syncer verbosity" do
           out = STDOUT.clone
           STDOUT = double("omg my own stdout")
-          @syncer.should_receive(:new).with(nil, @current_dir, @dirname, STDOUT)
+          @syncer.should_receive(:new).with(@wrapper, @current_dir, @dirname, STDOUT)
           rescuing_exit do
             @cli.run(["--verbose"])
           end
@@ -72,7 +79,7 @@ module Monster
 
         it "-l allow configure the local dir" do
           local_dir = "opa/lele"
-          @syncer.should_receive(:new).with(nil, local_dir, File.basename(local_dir), nil)
+          @syncer.should_receive(:new).with(@wrapper, local_dir, File.basename(local_dir), nil)
           rescuing_exit do
             @cli.run(["-l", local_dir])
           end
@@ -80,7 +87,7 @@ module Monster
 
         it "-r allow specify the remote dir" do
           remote = "test/omg/gogo"
-          @syncer.should_receive(:new).with(nil, @current_dir, remote, nil)
+          @syncer.should_receive(:new).with(@wrapper, @current_dir, remote, nil)
           rescuing_exit do
             @cli.run(["-r", remote])
           end

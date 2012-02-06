@@ -17,7 +17,7 @@ module Monster
         show_version if options[:show_version]
         wait_for_password if options[:password]
 
-        connection_wrapper = options[:wrapper]
+        connection_wrapper = options[:wrapper] || Monster::Remote::Wrappers::NetFTP
         local_dir = options[:local_dir] || Dir.pwd
         remote_dir = options[:remote_dir] || File.basename(local_dir)
         out = options[:verbose] ? STDOUT : nil
