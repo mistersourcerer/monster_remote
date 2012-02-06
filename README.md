@@ -110,7 +110,7 @@ end
 #Protocol Wrappers
 A wrapper is an object with the following methods:
 
- * `::new=(driver=Net::FTP)`
+ * `::new(driver=Net::FTP)`
     - the class from the real connection objects will be generated
  * `#open(host=nil, user=nil, password=nil, port=nil)`
     - called when the synchrony starts
@@ -128,3 +128,12 @@ A wrapper is an object with the following methods:
 
 Internally a wrapper will use a real "thing" (like the default `Net::FTP`)
 to replicate the local dir structure to the remote dir.
+
+#Programatically Syncing
+The `Monster::Remote::Sync` class has a very well defined interface, and
+you could use this to write your own sync logic if you need:
+
+ * `::new(wrapper, local_dir=nil, remote_dir=nil, verbose=nil)`
+ * `start(user = nil, password = nil, host = "localhost", port = 21)`
+    - calls the wrapper.open method passing a block with instructions to
+      replicate the local configured dir

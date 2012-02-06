@@ -102,6 +102,6 @@ module Monster
         end# -v
 
       end# executable
-    end
+    end# CLI
   end
 end
