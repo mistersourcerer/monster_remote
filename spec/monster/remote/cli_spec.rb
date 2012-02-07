@@ -16,6 +16,7 @@ module Monster
 
       before(:all) do
         @current_dir = Dir.pwd
+        @net_ftp = Monster::Remote::Wrappers::NetFTP
       end
 
       before do
@@ -144,6 +145,11 @@ module Monster
         end# -v
 
       end# executable
+
+      after(:all) do
+        Monster::Remote::Wrappers::NetFTP = @net_ftp
+      end
+
     end# CLI
   end
 end
