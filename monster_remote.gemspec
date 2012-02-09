@@ -5,7 +5,7 @@ $:.unshift lib unless $:.include?(lib)
 
 Gem::Specification.new do |s|
   s.name        = "monster_remote"
-  s.version     = "0.0.1"
+  s.version     = "0.1.0"
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Ricardo Valeriano"]
   s.email       = ["ricardo.valeriano@gmail.com"]
@@ -20,8 +20,8 @@ Gem::Specification.new do |s|
 
 	s.require_path = 'lib'
 	
-  s.files         = ["Gemfile", "LICENSE", "README.md", "Rakefile", "bin/monster_remote", "lib/monster/remote.rb", "lib/monster/remote/cli.rb", "lib/monster/remote/filters/filter.rb", "lib/monster/remote/filters/name_based_filter.rb", "lib/monster/remote/sync.rb", "lib/monster/remote/wrappers/net_ftp.rb", "lib/monster_remote.rb", "monster_remote.gemspec", "spec/monster/remote/cli_spec.rb", "spec/monster/remote/filters/filter_spec.rb", "spec/monster/remote/filters/name_based_filter_spec.rb", "spec/monster/remote/sync_specula.rb", "spec/monster/remote/wrappers/net_ftp_specula.rb", "spec/spec_helper.rb"]
-  s.test_files    = ["spec/monster/remote/cli_spec.rb", "spec/monster/remote/filters/filter_spec.rb", "spec/monster/remote/filters/name_based_filter_spec.rb", "spec/monster/remote/sync_specula.rb", "spec/monster/remote/wrappers/net_ftp_specula.rb", "spec/spec_helper.rb"]
+  s.files         = ["Gemfile", "LICENSE", "README.md", "Rakefile", "bin/monster_remote", "lib/monster/remote.rb", "lib/monster/remote/cli.rb", "lib/monster/remote/filters/filter.rb", "lib/monster/remote/filters/name_based_filter.rb", "lib/monster/remote/sync.rb", "lib/monster/remote/wrappers/net_ftp.rb", "lib/monster_remote.rb", "monster_remote.gemspec", "spec/monster/remote/cli_spec.rb", "spec/monster/remote/filters/filter_spec.rb", "spec/monster/remote/filters/name_based_filter_spec.rb", "spec/monster/remote/sync_spec.rb", "spec/monster/remote/wrappers/net_ftp_spec.rb", "spec/spec_helper.rb"]
+  s.test_files    = ["spec/monster/remote/cli_spec.rb", "spec/monster/remote/filters/filter_spec.rb", "spec/monster/remote/filters/name_based_filter_spec.rb", "spec/monster/remote/sync_spec.rb", "spec/monster/remote/wrappers/net_ftp_spec.rb", "spec/spec_helper.rb"]
 
 	
   s.executables  = ["monster_remote"]

@@ -6,7 +6,7 @@ module Monster
       attr_writer :verbose, :host, :port
 
       def initialize(wrapper, local_dir=nil, remote_dir=nil, verbose=nil)
-        @wrapper = wrapper
+        @wrapper = wrapper.new
         local_dir && @local_dir = local_dir
         remote_dir && @remote_dir = remote_dir
         verbose && @verbose = verbose
@@ -80,7 +80,8 @@ module Monster
           wrapper.open(@host, @user, @password, @port, &block)
         rescue Exception => e
           out("connection failed, #{e.message}")
-          raise NoConnectionError, e, caller
+          raise e
+          #raise NoConnectionError.new($!), e, caller
         end
       end
 
