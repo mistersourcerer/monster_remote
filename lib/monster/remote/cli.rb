@@ -16,17 +16,19 @@ module Monster
 
         show_version if options[:show_version]
         password = nil
-        if options[:password]
+
+        config = Configuration.new
+        if options[:password] || config.password_required?
           password = wait_for_password
         end
 
         connection_wrapper = options[:wrapper] || Monster::Remote::Wrappers::NetFTP
-        local_dir = options[:local_dir] || Dir.pwd
-        remote_dir = options[:remote_dir] || File.basename(local_dir)
+        local_dir = options[:local_dir] || config.local_dir || Dir.pwd
+        remote_dir = options[:remote_dir] || config.remote_dir || File.basename(local_dir)
         out = options[:verbose] ? STDOUT : nil
-        host = options[:host] || "localhost"
-        port = options[:port] || 21
-        user = options[:user] || nil
+        host = options[:host] || config.host || "localhost"
+        port = options[:port] || config.port || 21
+        user = options[:user] || config.user || nil
 
         sync = @syncer.new(connection_wrapper, local_dir, remote_dir, out)
         sync.start(user, password, host, port)
