@@ -15,24 +15,25 @@ A new executable is gonna be at your service: `monster_remote`.
 ##Syncing
 Enter the jekyll blog root path and type:
 
-    monster_remote [--ftp] -s 'your_server_address' -u 'your_user_here'
+    monster_remote [--ftp] -h your_server_address -u your_user_here
 
 The --ftp option is default, you could create you own connection
 provider if you need it.
 
 You will be prompted for your password. To reduce the size of the
 command by configuring some of these informations on your jekyll
-configuration file:
+configuration file (or in a .monster.yml file inside your jekyll site):
 
     monster:
       remote:
-        host: xpto.com
+        host: ftp.some_host.com
         user: omg_my_user
+        pass: true
+        local_dir: _site
+        remote_dir:
 
-Monster will rely on this configurations if you execute it without -s
-and -u params like this:
-
-  monster_remote
+Monster will rely on this configurations if you execute it without options.
+But the command line options overrides the configuration file info.
 
 ##Filtering specific files
 A filter is an object which `respond_to? :filter`, you can stack
