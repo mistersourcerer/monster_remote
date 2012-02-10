@@ -34,12 +34,23 @@ module Monster
         rescuing_exit { @cli.run(["-v"]) == Monster::Remote::VERSION }
       end
 
-      it "-p calls #gets on the given 'input'" do
-        rescuing_exit do
-          @in.should_receive(:gets)
-          @cli.run(["-p"])
+      context "-p (wait for passowrd)" do
+
+        it "calls #print with 'password:' on the output" do
+          rescuing_exit do
+            @out.should_receive(:print).with("password:")
+            @cli.run(["-p"])
+          end
         end
-      end
+
+        it "calls #gets on the input" do
+          rescuing_exit do
+            @in.should_receive(:gets)
+            @cli.run(["-p"])
+          end
+        end
+
+      end# wait for password
 
       context "using the 'sync' interface" do
 

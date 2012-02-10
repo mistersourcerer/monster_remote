@@ -38,7 +38,16 @@ module Monster
       end
 
       def wait_for_password
-        @in.gets.strip
+        @out.print "password:"
+
+        system("stty -echo")
+
+        password = @in.gets.strip
+
+        system("stty echo")
+        system("echo \"\"")
+
+        password
       end
 
       private
