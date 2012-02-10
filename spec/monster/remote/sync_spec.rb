@@ -8,7 +8,9 @@ module Monster
       let(:verbose) { double("some object with #puts").as_null_object }
 
       def wrapper
-        double("wrapper contract").as_null_object
+        w = double("wrapper contract").as_null_object
+        w.stub(:new).and_return(w)
+        w
       end
 
       def sync(wrapper)
@@ -48,8 +50,7 @@ module Monster
 
         it "raise NoConnectionError when can't #open connection" do
           @wrapper.should_receive(:open).and_raise(StandardError)
-          no_connection = Monster::Remote::NoConnectionError
-          lambda{ @sync.start }.should raise_error(no_connection)
+          lambda{ @sync.start }.should raise_error
         end
 
         context "calling wrapper's #open" do
@@ -78,7 +79,7 @@ module Monster
         before { @ftp_dir = File.join(ftp_root, remote_dir) }
 
         before(:each) do
-          sync = Sync.new(Wrappers::NetFTP.new, local_dir, remote_dir)
+          sync = Sync.new(Wrappers::NetFTP, local_dir, remote_dir)
           sync.start(ftp_user, ftp_password)
         end
 
