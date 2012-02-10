@@ -31,6 +31,7 @@ configuration file (or in a .monster.yml file inside your jekyll site):
         pass: true
         local_dir: _site
         remote_dir:
+        verbose: false
 
 Monster will rely on this configurations if you execute it without options.
 But the command line options overrides the configuration file info.

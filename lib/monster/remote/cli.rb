@@ -25,7 +25,7 @@ module Monster
         connection_wrapper = options[:wrapper] || Monster::Remote::Wrappers::NetFTP
         local_dir = options[:local_dir] || config.local_dir || Dir.pwd
         remote_dir = options[:remote_dir] || config.remote_dir || File.basename(local_dir)
-        out = options[:verbose] ? STDOUT : nil
+        out = (options[:verbose] || config.verbose?) ? STDOUT : nil
         host = options[:host] || config.host || "localhost"
         port = options[:port] || config.port || 21
         user = options[:user] || config.user || nil

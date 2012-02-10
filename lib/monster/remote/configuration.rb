@@ -23,9 +23,13 @@ module Monster
         read_config("pass")
       end
 
+      def verbose?
+        read_config("verbose")
+      end
+
       private
       def expected
-        [:host, :port, :user, :local_dir, :remote_dir]
+        [:host, :port, :user, :local_dir, :remote_dir, :verbose]
       end
 
       def respond_to?(method)
@@ -33,7 +37,6 @@ module Monster
       end
 
       def method_missing(method, *args)
-        expected = [:host, :port, :user, :local_dir, :remote_dir]
         if expected.include? method
           return read_config(method.to_s)
         end
