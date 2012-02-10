@@ -15,6 +15,7 @@ module Monster
           ftp.connect(host, port)
           ftp.login(user, password)
           if block
+            ftp.passive = true
             block.call(NetFTPHandler.new(ftp), ftp)
           end
           ftp.close
@@ -110,7 +111,7 @@ module Monster
 
         def create_and_chdir(dir)
           create_dir_if_not_exists(dir)
-          @ftp.chdir(dir)
+          dir && @ftp.chdir(dir)
         end
 
         def dirs_in_path(dir)
@@ -121,7 +122,7 @@ module Monster
           is_new_dir = true
           begin
             is_new_dir = @ftp.nlst(dir).empty?
-          rescue Net::FTPTempError => e
+          rescue Net::FTPPermError => e
             is_unexpected_error = !e.message.include?("450")
             if is_unexpected_error
               raise(e, e.message, caller)
@@ -134,6 +135,13 @@ module Monster
         def create_dir_if_not_exists(dir)
           if is_new_dir?(dir)
             @ftp.mkdir(dir)
+          end
+        end
+
+        def create_dir_if_not_exists_hold(dir)
+          begin
+            dir && @ftp.mkdir(dir)
+          rescue Net::FTPPermError
           end
         end
       end# NetFTPHandler

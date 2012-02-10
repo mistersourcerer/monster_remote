@@ -41,7 +41,7 @@ module Monster
       end
 
       def copy_file(wrapper, local_file, remote_file)
-        out("coping file to #{remote_file}")
+        out("copying file to #{remote_file}")
         wrapper.copy_file(local_file, remote_file)
       end
 
