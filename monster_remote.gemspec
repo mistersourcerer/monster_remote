@@ -5,7 +5,7 @@ $:.unshift lib unless $:.include?(lib)
 
 Gem::Specification.new do |s|
   s.name        = "monster_remote"
-  s.version     = "0.1.0"
+  s.version     = "0.1.1"
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Ricardo Valeriano"]
   s.email       = ["ricardo.valeriano@gmail.com"]
