@@ -36,6 +36,17 @@ configuration file (or in a .monster.yml file inside your jekyll site):
 Monster will rely on this configurations if you execute it without options.
 But the command line options overrides the configuration file info.
 
+###Options
+    -v, --version                    Show version
+    -p, --password                   Password for connection
+    -u, --user USER                  User for connection
+        --ftp                        Transfer with NetFTP wrapper
+        --verbose                    Verbose mode
+    -l, --local-dir DIR_PATH         Local dir to replicate
+    -r, --remote-dir DIR_PATH        Remote root dir
+    -H, --host HOST                  Server host
+    -P, --port SERVER_PORT           Server port
+
 ##Filtering specific files
 A filter is an object which `respond_to? :filter`, you can stack
 filters within the synchronization execution. The code to do that

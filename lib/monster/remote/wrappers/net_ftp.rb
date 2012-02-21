@@ -4,6 +4,9 @@ module Monster
   module Remote
     module Wrappers
 
+      class NetFTPPerf
+      end
+
       class NetFTP
 
         def initialize(driver=Net::FTP)
