@@ -121,30 +121,14 @@ module Monster
           dirs_in_path = dir.gsub(/\.*\/$/, "").split("/")
         end
 
-        def is_new_dir?(dir)
-          is_new_dir = true
+        def create_dir_if_not_exists(dir)
           begin
-            is_new_dir = @ftp.nlst(dir).empty?
+            dir && @ftp.mkdir(dir)
           rescue Net::FTPPermError => e
-            is_unexpected_error = !e.message.include?("450")
+            is_unexpected_error = !e.message.include?("550")
             if is_unexpected_error
               raise(e, e.message, caller)
             end
-            is_new_dir = !e.message.include?("No files found")
-          end
-          return is_new_dir
-        end
-
-        def create_dir_if_not_exists(dir)
-          if is_new_dir?(dir)
-            @ftp.mkdir(dir)
-          end
-        end
-
-        def create_dir_if_not_exists_hold(dir)
-          begin
-            dir && @ftp.mkdir(dir)
-          rescue Net::FTPPermError
           end
         end
       end# NetFTPHandler
