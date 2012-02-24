@@ -60,17 +60,13 @@ module Monster
         end
 
         def copy_file(from, to)
-          if (dirs = dirs_in_path(to)).size > 1
+          has_subdirs_in_path = (dirs = dirs_in_path(to)).size > 1
+          if has_subdirs_in_path
             file = dirs.pop
             create_dir(dirs.join("/"))
-
-            pwd = @ftp.pwd
-            dirs.each { |dir| @ftp.chdir(dir) }
-            @ftp.putbinaryfile(from, file)
-            @ftp.chdir(pwd)
-          else
-            @ftp.putbinaryfile(from, to)
           end
+
+          @ftp.putbinaryfile(from, to)
         end
 
         def remove_file(file)
