@@ -47,7 +47,7 @@ module Monster
 
       def copy_to_remote(wrapper, entry, path=nil)
         is_dot_dir = entry =~ /^\.$|^\.\.$/
-        out("ignoring dir #{entry}")
+        out("ignoring dir #{entry}") if is_dot_dir
         return if is_dot_dir
 
         entry_path = path ? File.join(path, entry) : ""
